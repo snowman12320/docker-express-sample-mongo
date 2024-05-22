@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express MongoDB 範例</title>
+  </head>
+  <body>
+    <h1>文字數據管理</h1>
+    <form id="textForm">
+      <input type="text" id="textInput" placeholder="輸入文字" required />
+      <button type="submit">新增文字</button>
+    </form>
+
+    <h2>存儲的文字數據：</h2>
+    <ul id="textList"></ul>
+    <hr>
+    <form id="saveTextForm">
+      <label for="saveText">儲存實體檔案</label>
+      <input type="text" id="saveText" placeholder="輸入文字" required />
+      <button type="submit">儲存文字</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      document
+        .getElementById('textForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const textInput = document.getElementById('textInput');
+          const text = textInput.value;
+          console.log({ text });
+          axios
+            .post('/text', { text })
+            .then((response) => {
+              console.log('新增成功:', response);
+              textInput.value = ''; // 清空輸入框
+              fetchTextData(); // 重新獲取所有數據
+            })
+            .catch((error) => console.error('新增失敗:', error));
+        });
+
+      document
+        .getElementById('saveTextForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const textInput = document.getElementById('saveText');
+          const text = textInput.value;
+          console.log({ text });
+          axios
+            .post('/text/savetext', { text })
+            .then((response) => {
+              console.log('新增成功:', response);
+              textInput.value = ''; // 清空輸入框
+              fetchTextData(); // 重新獲取所有數據
+            })
+            .catch((error) => console.error('新增失敗:', error));
+        });
+
+      function fetchTextData() {
+        axios
+          .get('/text')
+          .then((response) => {
+            const textList = document.getElementById('textList');
+            textList.innerHTML = ''; // 清空列表
+            response.data.forEach((item) => {
+              const li = document.createElement('li');
+              li.textContent = item.text;
+              textList.appendChild(li);
+            });
+          })
+          .catch((error) => console.error('獲取數據失敗:', error));
+      }
+
+      // 頁面加載時獲取數據
+      window.onload = fetchTextData;
+    </script>
+  </body>
+</html>

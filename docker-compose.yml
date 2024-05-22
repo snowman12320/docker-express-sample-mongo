@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  my-mongodb:
+    image: mongo:latest
+    container_name: my-mongodb
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - my-network
+
+  node-app:
+    image: casper723/2024-node-course-express-mongo
+    container_name: node-app
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URL: ${COMPOSE_DB_URL}
+      # - MONGODB_URL=mongodb://my-mongodb/mydatabase
+    depends_on:
+      - my-mongodb
+    networks:
+      - my-network
+
+volumes:
+  mongodbdata:
+
+networks:
+  my-network:
+    driver: bridge
