@@ -6,11 +6,14 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-
 let count = 0; // 計數器
 router.get('/count', (req, res) => {
   count++; // 增加計數器
   res.render('count', { count }); // 傳遞計數器到 EJS 模板
+});
+
+router.get('/error', (req, res) => {
+  process.exit(1);
 });
 
 module.exports = router;
