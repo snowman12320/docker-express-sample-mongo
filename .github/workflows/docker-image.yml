@@ -1,0 +1,37 @@
+name: Build and Push Docker Image
+    
+# 當推送符合 'v*' 模式的標籤時觸發此工作流程
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 作業系統運行此工作流程
+
+    steps:
+    - name: Checkout repository  # 儲存庫程式碼
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx  # 設置 Docker Buildx 環境
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub  # 登入 Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}  # 使用儲存在 Secrets 中的 Docker Hub 使用者名稱
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}  # 使用儲存在 Secrets 中的 Docker Hub 訪問令牌
+
+    - name: Build and push  # 建置並推送 Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .  # 設定建置上下文為當前目錄
+        push: true  # 在建置完成後推送映像到 Docker Hub
+        platforms: linux/amd64,linux/arm64  # 目標平台為 AMD64 和 ARM64
+        tags: |  # 設定 Docker 映像的標籤 # /後方是儲存酷名稱
+          ${{ secrets.DOCKER_HUB_USERNAME }}/docker-express-sample-mongo:latest
+          ${{ secrets.DOCKER_HUB_USERNAME }}/docker-express-sample-mongo:${{ github.ref_name }}
+
+    - name: Logout from DockerHub  # 從 Docker Hub 登出
+      run: docker logout
