@@ -1,3 +1,9 @@
+# 例如，如果要推送名為 v1.0 的標籤，命令為：
+# git push origin v1.0
+# 推送所有標籤，一次性推送所有本地標籤，可以使用：
+# git push origin --tags
+
+# x
 # tags更新後，更新Docker Hub，雲端主機也更新：
 # 停止所有運行中的容器：使用 docker stop 命令，搭配 docker ps -q 來獲取所有運行中容器的 ID：
 # docker stop $(docker ps -q)
@@ -5,10 +11,14 @@
 #  y
 #  docker compose up -d
 
+# x
 # 要確保使用最新的映像，您可以採取以下方法：
 # 使用 --pull 標誌：在執行 docker-compose up 時，新增 --pull 標誌，這將強制 Docker Compose 嘗試拉取最新版本的所有映像：
 # docker-compose up -d --pull
 
+# o
+# docker-compose pull
+# docker-compose up -d
 
 name: Build and Push Docker Image
     
