@@ -10,7 +10,7 @@ services:
       - my-network
 
   node-app:
-    image: casper723/2024-node-course-express-mongo
+    image: snowman12320/docker-express-sample-mongo
     container_name: node-app
     ports:
       - "3000:3000"
@@ -21,9 +21,14 @@ services:
       - my-mongodb
     networks:
       - my-network
+    volumes:
+      # 將應用資料映射到容器內
+      - /root/docker-express-sample-mongo:/usr/local/app/dist  
+
 
 volumes:
-  mongodbdata:
+ # 不能mongodbdata:{}
+ mongodbdata: 
 
 networks:
   my-network:
