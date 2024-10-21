@@ -46,4 +46,4 @@ jobs:
 
       - name: Execute commands on remote server
         run: |
-          ssh -o StrictHostKeyChecking=no root@172.234.88.55 "cd docker-express-sample-mongo/ && docker-compose pull && docker-compose up -d"
+          ssh root@172.234.88.55 "cd docker-express-sample-mongo/ && docker-compose pull && docker-compose up -d"
