@@ -15,6 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # 設置 SSH 代理
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       # 設置 Docker Buildx 環境
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -53,12 +59,6 @@ jobs:
       # 上傳環境變數
       - name: Transfer .env file
         run: scp .env root@${{ secrets.HOST_NAME }}:~/docker-express-sample-mongo/
-
-      # 設置 SSH 代理
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # 將遠端伺服器新增到 known_hosts
       - name: Add remote server to known_hosts
