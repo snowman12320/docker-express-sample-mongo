@@ -13,22 +13,20 @@ services:
     image: snowman12320/docker-express-sample-mongo
     container_name: node-app
     ports:
-      - "80:3000"
+      - '80:3000'
     environment:
       MONGODB_URL: ${COMPOSE_DB_URL}
-      # - MONGODB_URL=mongodb://my-mongodb/mydatabase
+
     depends_on:
       - my-mongodb
     networks:
       - my-network
     volumes:
       # 將應用資料映射到容器內
-      - /root/docker-express-sample-mongo:/usr/local/app/dist  
-
+      - /root/docker-express-sample-mongo:/usr/local/app/dist
 
 volumes:
- # 不能mongodbdata:{}
- mongodbdata: 
+  mongodbdata:
 
 networks:
   my-network:
