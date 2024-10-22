@@ -54,16 +54,16 @@ jobs:
 
       # 上傳環境變數
       - name: Transfer .env file
-        run: scp .env root@${{ secrets.HOST_NAME }}:~/docker-express-sample-mongo/
+        run: scp .env root@172.234.88.55:~/docker-express-sample-mongo/
 
       # 將遠端伺服器新增到 known_hosts
       - name: Add remote server to known_hosts
-        run: ssh-keyscan -H ${{ secrets.HOST_NAME }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H 172.234.88.55 >> ~/.ssh/known_hosts
 
       # 在遠端伺服器上執行命令
       - name: Execute commands on remote server
         run: |
-          ssh root@${{ secrets.HOST_NAME }} "
+          ssh root@172.234.88.55 "
           cd docker-express-sample-mongo/
           docker-compose pull
           docker-compose --env-file .env up -d
