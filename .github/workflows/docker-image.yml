@@ -76,5 +76,5 @@ jobs:
           ssh root@${{ secrets.HOST_NAME }} "
           cd docker-express-sample-mongo/
           docker-compose pull
-          docker-compose --env-file $HOME/docker-express-sample-mongo/.env up -d
+          docker-compose --env-file .env up -d
           "
