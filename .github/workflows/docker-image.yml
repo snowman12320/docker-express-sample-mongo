@@ -52,10 +52,6 @@ jobs:
         run: |
           echo VARIABLE=${{ secrets.ENV_VARIABLE }} >> .env
 
-      # 確保資料夾是存在的
-      - name: Create directory if not exists
-        run: ssh root@${{ secrets.HOST_NAME }} "mkdir -p ~/docker-express-sample-mongo/"
-
       # 上傳環境變數
       - name: Transfer .env file
         run: scp .env root@${{ secrets.HOST_NAME }}:~/docker-express-sample-mongo/
