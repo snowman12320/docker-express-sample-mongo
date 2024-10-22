@@ -50,11 +50,7 @@ jobs:
       # 可加入多個環境變數
       - name: Create .env file
         run: |
-          echo VARIABLE=${{ secrets.ENV_VARIABLE }} >> .env
-
-      # 確保資料夾是存在的
-      # - name: Create directory if not exists
-      #   run: ssh root@${{ secrets.HOST_NAME }} "mkdir -p ~/docker-express-sample-mongo/"
+          echo ${{ secrets.ENV_VARIABLE }} >> .env
 
       # 上傳環境變數
       - name: Transfer .env file
