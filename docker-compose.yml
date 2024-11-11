@@ -22,8 +22,8 @@ services:
     networks:
       - my-network
     volumes:
-      # 將應用資料映射到容器內
-      - /root/docker-express-sample-mongo:/usr/local/app/dist
+      # 將應用資料映射到容器內 (前本地資料夾位置 或 雲主機路徑如：/root/docker-express-sample-mongo ，後 容器內的檔案路徑)
+      - /Users/william/Documents/docker-express-sample-mongo:/usr/local/app/dist
 
 volumes:
   mongodbdata:
