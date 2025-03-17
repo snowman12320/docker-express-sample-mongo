@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../service/mySql');
+const e = require('express');
 
 // 新增使用者
 router.post('/user', async (req, res) => {
   try {
-    console.log('Received request body:', req.body);
-    
     if (!req.body || typeof req.body !== 'object') {
       return res.status(400).json({ error: 'Invalid request body' });
     }
@@ -21,8 +20,6 @@ router.post('/user', async (req, res) => {
       data: {
         email,
         name: name || null,
-        createdAt: new Date(),
-        updatedAt: new Date()
       }
     });
 
