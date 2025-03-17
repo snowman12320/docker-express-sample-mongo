@@ -19,8 +19,10 @@ router.post('/user', async (req, res) => {
 
     const user = await prisma.user.create({
       data: {
-        email: email,
-        name: name || null
+        email,
+        name: name || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     });
 
