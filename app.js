@@ -8,6 +8,7 @@ require('./service/db');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const textRouter = require('./routes/textRouter');
+const mySqlRouter = require('./routes/mySqlRouter');
 
 var app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/text', textRouter);
+app.use('/mySql', mySqlRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
