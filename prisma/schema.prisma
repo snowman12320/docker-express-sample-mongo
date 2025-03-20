@@ -17,6 +17,7 @@ model User {
 
 model SleepData {
   id                     Int      @id @default(autoincrement())
+  patientId              String
   userCode               String
   age                    Int
   gender                 String
