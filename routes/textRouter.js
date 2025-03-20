@@ -9,11 +9,15 @@ const multer = require('multer');
 // 配置 multer 用於處理檔案上傳
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../public/uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // 從 URL 參數獲取用戶名
+    const username = req.params.username;
+    console.log('Username from params:', username);
+    
+    const userUploadDir = path.join(__dirname, `../public/uploads/${username}`);
+    if (!fs.existsSync(userUploadDir)) {
+      fs.mkdirSync(userUploadDir, { recursive: true });
     }
-    cb(null, uploadDir);
+    cb(null, userUploadDir);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
@@ -68,17 +72,25 @@ router.post('/savetext', (req, res) => {
 });
 
 // PDF 上傳處理
-router.post('/upload-pdf', upload.single('pdf'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('未選擇檔案');
+router.post('/upload-pdf/:username', upload.single('pdf'), (req, res) => {
+  const username = req.params.username;
+  if (!req.file || !username) {
+    return res.status(400).send('未選擇檔案或未提供用戶名');
   }
+  console.log(`成功上傳檔案到用戶 ${username} 的目錄`);
   res.send('PDF 上傳成功');
 });
 
-// 獲取 PDF 文件列表
-router.get('/pdf-list', (req, res) => {
-  const uploadsDir = path.join(__dirname, '../public/uploads');
-  fs.readdir(uploadsDir, (err, files) => {
+// 獲取特定用戶的 PDF 文件列表
+router.get('/pdf-list/:username', (req, res) => {
+  const { username } = req.params;
+  const userUploadsDir = path.join(__dirname, `../public/uploads/${username}`);
+  
+  if (!fs.existsSync(userUploadsDir)) {
+    return res.json([]);
+  }
+
+  fs.readdir(userUploadsDir, (err, files) => {
     if (err) {
       console.error('讀取目錄失敗:', err);
       return res.status(500).send('無法讀取 PDF 列表');

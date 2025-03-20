@@ -38,19 +38,38 @@
     </form>
 
     <hr />
-    <h2>PDF 文件上傳</h2>
-    <form
-      id="pdfForm"
-      enctype="multipart/form-data"
+    <div id="userSection">
+      <h2>用戶登入</h2>
+      <form id="loginForm">
+        <input
+          type="text"
+          id="username"
+          placeholder="請輸入用戶名稱"
+          required
+        />
+        <button type="submit">登入</button>
+      </form>
+      <p id="currentUser"></p>
+    </div>
+
+    <div
+      id="pdfSection"
+      style="display: none"
     >
-      <input
-        type="file"
-        id="pdfInput"
-        accept="application/pdf"
-        required
-      />
-      <button type="submit">上傳 PDF</button>
-    </form>
+      <h2>PDF 文件上傳</h2>
+      <form
+        id="pdfForm"
+        enctype="multipart/form-data"
+      >
+        <input
+          type="file"
+          id="pdfInput"
+          accept="application/pdf"
+          required
+        />
+        <button type="submit">上傳 PDF</button>
+      </form>
+    </div>
 
     <h3>已上傳的 PDF 文件：</h3>
     <ul id="pdfList"></ul>
@@ -87,15 +106,37 @@
           .catch(error => console.error('新增失敗:', error));
       });
 
+      let currentUsername = '';
+
+      document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        currentUsername = document.getElementById('username').value;
+        document.getElementById('currentUser').textContent = `當前用戶: ${currentUsername}`;
+        document.getElementById('pdfSection').style.display = 'block';
+        document.getElementById('username').value = '';
+        fetchPdfList();
+      });
+
       // PDF 上傳處理
       document.getElementById('pdfForm').addEventListener('submit', function (e) {
         e.preventDefault();
+        if (!currentUsername) {
+          alert('請先登入');
+          return;
+        }
         const formData = new FormData();
         const pdfFile = document.getElementById('pdfInput').files[0];
         formData.append('pdf', pdfFile);
+        formData.append('username', currentUsername);
+
+        const config = {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        };
 
         axios
-          .post('/text/upload-pdf', formData)
+          .post(`/text/upload-pdf/${currentUsername}`, formData, config)
           .then(response => {
             console.log('PDF 上傳成功:', response);
             document.getElementById('pdfInput').value = '';
@@ -120,15 +161,17 @@
       }
 
       function fetchPdfList() {
+        if (!currentUsername) return;
+
         axios
-          .get('/text/pdf-list')
+          .get(`/text/pdf-list/${currentUsername}`)
           .then(response => {
             const pdfList = document.getElementById('pdfList');
             pdfList.innerHTML = '';
             response.data.forEach(pdf => {
               const li = document.createElement('li');
               const link = document.createElement('a');
-              link.href = `/uploads/${pdf}`;
+              link.href = `/uploads/${currentUsername}/${pdf}`;
               link.textContent = pdf;
               link.target = '_blank';
               li.appendChild(link);
