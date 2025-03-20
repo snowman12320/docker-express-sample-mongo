@@ -14,3 +14,26 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+model SleepData {
+  id                     Int      @id @default(autoincrement())
+  userCode               String
+  age                    Int
+  gender                 String
+  height                 Float
+  weight                 Float
+  bmi                    Float
+  recordStartTime        DateTime
+  recordEndTime          DateTime
+  timeZone               String
+  bedtimeDurationMinutes Int
+  bAHI                   Float
+  ODI                    Float
+  SpO2LessThan90Percent  Int
+  sleepEfficiency        Float
+  totalSleepTimeMinutes  Int
+  quickSleepDuration     Float
+  averageSleepRate       Float
+  selfRegulationScore    Float    @map("self-regulationScore")
+  notes                  String?
+}
