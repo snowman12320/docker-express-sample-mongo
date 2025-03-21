@@ -9,10 +9,10 @@
     <title>Express MongoDB 範例</title>
   </head>
   <body>
-    <h1>文字數據管理</h1>
+    <!-- <h1>文字數據管理</h1>
     <p>william test tags and github action</p>
     <p>william test docker-compose pull latest image</p>
-    <p>william test Execute commands on remote server</p>
+    <p>william test Execute commands on remote server</p> -->
     <form id="textForm">
       <input
         type="text"
@@ -22,10 +22,11 @@
       />
       <button type="submit">新增文字</button>
     </form>
-
     <h2>存儲的文字數據：</h2>
     <ul id="textList"></ul>
     <hr />
+
+    <!-- 
     <form id="saveTextForm">
       <label for="saveText">儲存實體檔案</label>
       <input
@@ -35,11 +36,11 @@
         required
       />
       <button type="submit">儲存文字</button>
-    </form>
+    </form> -->
 
     <hr />
     <div id="userSection">
-      <h2>用戶登入</h2>
+      <!-- <h2>用戶登入</h2> -->
       <form id="loginForm">
         <input
           type="text"
@@ -80,31 +81,31 @@
         e.preventDefault();
         const textInput = document.getElementById('textInput');
         const text = textInput.value;
-        console.log({ text });
+        // console.log({ text });
         axios
           .post('/text', { text })
           .then(response => {
-            console.log('新增成功:', response);
+            // console.log('新增成功:', response);
             textInput.value = ''; // 清空輸入框
             fetchTextData(); // 重新獲取所有數據
           })
           .catch(error => console.error('新增失敗:', error));
       });
 
-      document.getElementById('saveTextForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const textInput = document.getElementById('saveText');
-        const text = textInput.value;
-        console.log({ text });
-        axios
-          .post('/text/savetext', { text })
-          .then(response => {
-            console.log('新增成功:', response);
-            textInput.value = ''; // 清空輸入框
-            fetchTextData(); // 重新獲取所有數據
-          })
-          .catch(error => console.error('新增失敗:', error));
-      });
+      // document.getElementById('saveTextForm').addEventListener('submit', function (e) {
+      //   e.preventDefault();
+      //   const textInput = document.getElementById('saveText');
+      //   const text = textInput.value;
+      //   console.log({ text });
+      //   axios
+      //     .post('/text/savetext', { text })
+      //     .then(response => {
+      //       console.log('新增成功:', response);
+      //       textInput.value = ''; // 清空輸入框
+      //       fetchTextData(); // 重新獲取所有數據
+      //     })
+      //     .catch(error => console.error('新增失敗:', error));
+      // });
 
       let currentUsername = '';
 
@@ -138,7 +139,7 @@
         axios
           .post(`/text/upload-pdf/${currentUsername}`, formData, config)
           .then(response => {
-            console.log('PDF 上傳成功:', response);
+            // console.log('PDF 上傳成功:', response);
             document.getElementById('pdfInput').value = '';
             fetchPdfList();
           })

@@ -37,7 +37,6 @@ const upload = multer({
 
 // 處理 POST 請求，新增文字資料到 MongoDB
 router.post('/', async (req, res) => {
-  console.log(req.body);
   const newTextData = new TextModel({ text: req?.body?.text });
   try {
     await newTextData.save();
@@ -51,7 +50,6 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const textData = await TextModel.find({});
-    console.log(textData);
     res.json(textData);
   } catch (error) {
     res.status(500).send(error);
@@ -77,7 +75,7 @@ router.post('/upload-pdf/:username', upload.single('pdf'), (req, res) => {
   if (!req.file || !username) {
     return res.status(400).send('未選擇檔案或未提供用戶名');
   }
-  console.log(`成功上傳檔案到用戶 ${username} 的目錄`);
+  // console.log(`成功上傳檔案到用戶 ${username} 的目錄`);
   res.send('PDF 上傳成功');
 });
 
