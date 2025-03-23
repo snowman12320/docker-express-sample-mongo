@@ -7,7 +7,8 @@ router.use((req, res, next) => {
   // 更新 CORS 設定，允許多個來源
   const allowedOrigins = [
     'https://phpstack-1387833-5139313.cloudwaysapps.com',
-    'https://phpstack-1387833-5352829.cloudwaysapps.com'
+    'https://phpstack-1387833-5352829.cloudwaysapps.com',
+    'http://localhost:5173'
   ];
   
   const origin = req.headers.origin;
