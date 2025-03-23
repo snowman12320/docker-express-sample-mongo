@@ -19,8 +19,7 @@ model SleepData {
   id                     Int      @id @default(autoincrement())
   patientId              String
   userCode               String
-  age                    Int
-  gender                 String
+  ageAndGender           String
   height                 Float
   weight                 Float
   bmi                    Float
@@ -29,6 +28,7 @@ model SleepData {
   timeZone               String
   bedtimeDurationMinutes Int
   bAHI                   Float
+  minSpo2                Float
   ODI                    Float
   SpO2LessThan90Percent  Int
   sleepEfficiency        Float

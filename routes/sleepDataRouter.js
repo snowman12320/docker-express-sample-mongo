@@ -2,6 +2,30 @@ const express = require('express');
 const router = express.Router();
 const prisma = require('../service/mySql');
 
+// CORS 和錯誤處理中介軟體
+router.use((req, res, next) => {
+  // 更新 CORS 設定
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173','https://phpstack-1387833-5139313.cloudwaysapps.com/');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Strict-Transport-Security', 'max-age=31536000');
+  
+  // 處理 SSL/TLS 錯誤
+  req.on('error', (err) => {
+    if (err.code === 'EPROTO') {
+      console.error('SSL/TLS 錯誤:', err);
+      return res.status(500).json({ error: '連接安全性錯誤' });
+    }
+    next(err);
+  });
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // 新增睡眠資料 (不寫死資料)
 router.post('/', async (req, res) => {
   try {
