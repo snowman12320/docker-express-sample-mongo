@@ -4,8 +4,17 @@ const prisma = require('../service/mySql');
 
 // CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
-  // 更新 CORS 設定
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173','https://phpstack-1387833-5139313.cloudwaysapps.com/');
+  // 更新 CORS 設定，允許多個來源
+  const allowedOrigins = [
+    'https://phpstack-1387833-5139313.cloudwaysapps.com',
+    'https://phpstack-1387833-5352829.cloudwaysapps.com'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
