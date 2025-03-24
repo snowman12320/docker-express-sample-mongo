@@ -11,6 +11,7 @@ const textRouter = require('./routes/textRouter');
 const mySqlRouter = require('./routes/mySqlRouter');
 const sleepDataRouter = require('./routes/sleepDataRouter');
 const mailRoutes = require('./routes/mailRoutes');
+const pdfRouter = require('./routes/pdfRouter');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/text', textRouter);
 app.use('/mySql', mySqlRouter);
 app.use('/sleep', sleepDataRouter);
 app.use('/mail', mailRoutes);
+app.use('/pdf', pdfRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

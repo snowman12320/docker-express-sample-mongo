@@ -137,7 +137,7 @@
         };
 
         axios
-          .post(`/text/upload-pdf/${currentUsername}`, formData, config)
+          .post(`/pdf/upload/${currentUsername}`, formData, config)
           .then(response => {
             // console.log('PDF 上傳成功:', response);
             document.getElementById('pdfInput').value = '';
@@ -165,7 +165,7 @@
         if (!currentUsername) return;
 
         axios
-          .get(`/text/pdf-list/${currentUsername}`)
+          .get(`/pdf/list/${currentUsername}`)
           .then(response => {
             const pdfList = document.getElementById('pdfList');
             pdfList.innerHTML = '';
