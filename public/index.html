@@ -111,10 +111,6 @@
       // PDF 上傳處理
       document.getElementById('pdfForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        if (!currentUsername) {
-          alert('請先登入');
-          return;
-        }
         const formData = new FormData();
         const pdfFile = document.getElementById('pdfInput').files[0];
         const patientId = 'patient123';
