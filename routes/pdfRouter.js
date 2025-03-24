@@ -6,14 +6,12 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const username = req.params.username;
-    console.log('Username from params:', username);
-    
-    const userUploadDir = path.join(__dirname, `../public/uploads/${username}`);
-    if (!fs.existsSync(userUploadDir)) {
-      fs.mkdirSync(userUploadDir, { recursive: true });
+    const { patientId, tableId } = req.params;
+    const uploadDir = path.join(__dirname, `../public/uploads/${patientId}/${tableId}`);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
-    cb(null, userUploadDir);
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
@@ -32,29 +30,48 @@ const upload = multer({
 });
 
 // PDF 上傳處理
-router.post('/upload/:username', upload.single('pdf'), (req, res) => {
-  const username = req.params.username;
-  if (!req.file || !username) {
-    return res.status(400).send('未選擇檔案或未提供用戶名');
+router.post('/upload/:patientId/:tableId', upload.single('pdf'), (req, res) => {
+  const { patientId, tableId } = req.params;
+  
+  if (!req.file) {
+    return res.status(400).send('未選擇檔案');
   }
-  res.send('PDF 上傳成功');
+  
+  const filePath = `/uploads/${patientId}/${tableId}/${req.file.filename}`;
+  const currentUrl = `${req.protocol}://${req.get('host')}${filePath}`;
+  res.json({
+    message: 'PDF 上傳成功',
+    filePath: currentUrl,
+    filename: req.file.filename
+  });
 });
 
-// 獲取特定用戶的 PDF 文件列表
-router.get('/list/:username', (req, res) => {
-  const { username } = req.params;
-  const userUploadsDir = path.join(__dirname, `../public/uploads/${username}`);
+// 獲取特定路徑的 PDF 文件列表
+router.get('/list/:patientId/:tableId', (req, res) => {
+  const { patientId, tableId } = req.params;
+  const uploadsDir = path.join(__dirname, `../public/uploads/${patientId}/${tableId}`);
   
-  if (!fs.existsSync(userUploadsDir)) {
+  if (!fs.existsSync(uploadsDir)) {
     return res.json([]);
   }
 
-  fs.readdir(userUploadsDir, (err, files) => {
+  fs.readdir(uploadsDir, (err, files) => {
     if (err) {
       console.error('讀取目錄失敗:', err);
       return res.status(500).send('無法讀取 PDF 列表');
     }
-    const pdfFiles = files.filter(file => file.toLowerCase().endsWith('.pdf'));
+    
+    const pdfFiles = files
+      .filter(file => file.toLowerCase().endsWith('.pdf'))
+      .map(filename => {
+        const filePath = `/uploads/${patientId}/${tableId}/${filename}`;
+        const fileUrl = `${req.protocol}://${req.get('host')}${filePath}`;
+        return {
+          filename,
+          url: fileUrl
+        };
+      });
+
     res.json(pdfFiles);
   });
 });

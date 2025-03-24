@@ -6,13 +6,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <title>Express MongoDB 範例</title>
+    <title>Express 範例</title>
   </head>
   <body>
-    <!-- <h1>文字數據管理</h1>
-    <p>william test tags and github action</p>
-    <p>william test docker-compose pull latest image</p>
-    <p>william test Execute commands on remote server</p> -->
+    <h1>文字數據管理</h1>
     <form id="textForm">
       <input
         type="text"
@@ -25,7 +22,6 @@
     <h2>存儲的文字數據：</h2>
     <ul id="textList"></ul>
     <hr />
-
     <!-- 
     <form id="saveTextForm">
       <label for="saveText">儲存實體檔案</label>
@@ -37,10 +33,9 @@
       />
       <button type="submit">儲存文字</button>
     </form> -->
-
     <hr />
-    <div id="userSection">
-      <!-- <h2>用戶登入</h2> -->
+    <!-- <div id="userSection">
+      <h2>用戶登入</h2>
       <form id="loginForm">
         <input
           type="text"
@@ -51,12 +46,9 @@
         <button type="submit">登入</button>
       </form>
       <p id="currentUser"></p>
-    </div>
-
-    <div
-      id="pdfSection"
-      style="display: none"
-    >
+    </div> -->
+    <hr />
+    <div id="pdfSection">
       <h2>PDF 文件上傳</h2>
       <form
         id="pdfForm"
@@ -81,7 +73,6 @@
         e.preventDefault();
         const textInput = document.getElementById('textInput');
         const text = textInput.value;
-        // console.log({ text });
         axios
           .post('/text', { text })
           .then(response => {
@@ -107,16 +98,15 @@
       //     .catch(error => console.error('新增失敗:', error));
       // });
 
-      let currentUsername = '';
-
-      document.getElementById('loginForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        currentUsername = document.getElementById('username').value;
-        document.getElementById('currentUser').textContent = `當前用戶: ${currentUsername}`;
-        document.getElementById('pdfSection').style.display = 'block';
-        document.getElementById('username').value = '';
-        fetchPdfList();
-      });
+      // let currentUsername = '';
+      // document.getElementById('loginForm').addEventListener('submit', function (e) {
+      //   e.preventDefault();
+      //   currentUsername = document.getElementById('username').value;
+      //   document.getElementById('currentUser').textContent = `當前用戶: ${currentUsername}`;
+      //   document.getElementById('pdfSection').style.display = 'block';
+      //   document.getElementById('username').value = '';
+      //   fetchPdfList();
+      // });
 
       // PDF 上傳處理
       document.getElementById('pdfForm').addEventListener('submit', function (e) {
@@ -127,19 +117,18 @@
         }
         const formData = new FormData();
         const pdfFile = document.getElementById('pdfInput').files[0];
-        formData.append('pdf', pdfFile);
-        formData.append('username', currentUsername);
+        const patientId = 'patient123';
+        const tableId = 'table456';
 
-        const config = {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        };
+        formData.append('pdf', pdfFile);
 
         axios
-          .post(`/pdf/upload/${currentUsername}`, formData, config)
+          .post(`/pdf/upload/${patientId}/${tableId}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
           .then(response => {
-            // console.log('PDF 上傳成功:', response);
             document.getElementById('pdfInput').value = '';
             fetchPdfList();
           })
@@ -162,18 +151,19 @@
       }
 
       function fetchPdfList() {
-        if (!currentUsername) return;
+        const patientId = 'patient123';
+        const tableId = 'table456';
 
         axios
-          .get(`/pdf/list/${currentUsername}`)
+          .get(`/pdf/list/${patientId}/${tableId}`)
           .then(response => {
             const pdfList = document.getElementById('pdfList');
             pdfList.innerHTML = '';
-            response.data.forEach(pdf => {
+            response.data.forEach(item => {
               const li = document.createElement('li');
               const link = document.createElement('a');
-              link.href = `/uploads/${currentUsername}/${pdf}`;
-              link.textContent = pdf;
+              link.href = item.url;
+              link.textContent = item.filename;
               link.target = '_blank';
               li.appendChild(link);
               pdfList.appendChild(li);
