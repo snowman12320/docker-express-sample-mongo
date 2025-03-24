@@ -4,6 +4,27 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
+// 新增 CORS 和錯誤處理中介軟體
+router.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+
+  // CORS 設定
+  const origin = '*';
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Strict-Transport-Security', 'max-age=31536000');
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const { patientId, tableId } = req.params;
