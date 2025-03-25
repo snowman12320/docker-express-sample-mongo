@@ -110,7 +110,7 @@ router.get('/list/:patientId', (req, res) => {
         const filePath = `/uploads/${patientId}/${filename}`;
         const protocol = 'https://phpstack-1387833-5352829.cloudwaysapps.com';
         // const protocol = 'http://127.0.0.1:3000';
-        const fileUrl = `${req.protocol}${encodeURI(filePath)}`;
+        const fileUrl = `${protocol}${encodeURI(filePath)}`;
         return {
           filename: originalName,
           encodedFilename: filename,
