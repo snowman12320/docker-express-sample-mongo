@@ -114,12 +114,11 @@
         const formData = new FormData();
         const pdfFile = document.getElementById('pdfInput').files[0];
         const patientId = 'patient123';
-        const tableId = 'table456';
 
         formData.append('pdf', pdfFile);
 
         axios
-          .post(`/pdf/upload/${patientId}/${tableId}`, formData, {
+          .post(`/pdf/upload/${patientId}`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -148,10 +147,9 @@
 
       function fetchPdfList() {
         const patientId = 'patient123';
-        const tableId = 'table456';
 
         axios
-          .get(`/pdf/list/${patientId}/${tableId}`)
+          .get(`/pdf/list/${patientId}`)
           .then(response => {
             const pdfList = document.getElementById('pdfList');
             pdfList.innerHTML = '';

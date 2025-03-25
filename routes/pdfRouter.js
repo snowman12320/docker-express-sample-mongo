@@ -27,8 +27,8 @@ router.use((req, res, next) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const { patientId, tableId } = req.params;
-    const uploadDir = path.join(__dirname, `../public/uploads/${patientId}/${tableId}`);
+    const { patientId } = req.params;
+    const uploadDir = path.join(__dirname, `../public/uploads/${patientId}`);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -36,7 +36,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // 處理中文檔名
-    const originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    const originalname = Buffer.from(file.originalname).toString('utf8');
     const encodedFilename = encodeURIComponent(path.parse(originalname).name);
     const timestamp = Date.now();
     const extension = path.extname(originalname);
@@ -56,23 +56,24 @@ const upload = multer({
 });
 
 // PDF 上傳處理
-router.post('/upload/:patientId/:tableId', upload.single('pdf'), async (req, res) => {
+router.post('/upload/:patientId', upload.single('pdf'), async (req, res) => {
   try {
-    const { patientId, tableId } = req.params;
+    const { patientId } = req.params;
     
     if (!req.file) {
       return res.status(400).send('未選擇檔案');
     }
 
-    const originalFilename = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
-    const filePath = `/uploads/${patientId}/${tableId}/${req.file.filename}`;
+    const originalFilename = Buffer.from(req.file.originalname).toString('utf8');
+    const encodedFilename = encodeURIComponent(req.file.filename);
+    const filePath = `/uploads/${patientId}/${encodedFilename}`;
     const currentUrl = `${req.protocol}://${req.get('host')}${filePath}`;
 
     res.json({
       message: 'PDF 上傳成功',
       filePath: currentUrl,
       filename: originalFilename,
-      encodedFilename: req.file.filename
+      encodedFilename: encodedFilename
     });
   } catch (error) {
     console.error('上傳處理錯誤:', error);
@@ -81,9 +82,9 @@ router.post('/upload/:patientId/:tableId', upload.single('pdf'), async (req, res
 });
 
 // 獲取特定路徑的 PDF 文件列表
-router.get('/list/:patientId/:tableId', (req, res) => {
-  const { patientId, tableId } = req.params;
-  const uploadsDir = path.join(__dirname, `../public/uploads/${patientId}/${tableId}`);
+router.get('/list/:patientId', (req, res) => {
+  const { patientId } = req.params;
+  const uploadsDir = path.join(__dirname, `../public/uploads/${patientId}`);
   
   if (!fs.existsSync(uploadsDir)) {
     return res.json([]);
@@ -98,13 +99,11 @@ router.get('/list/:patientId/:tableId', (req, res) => {
     const pdfFiles = files
       .filter(file => file.toLowerCase().endsWith('.pdf'))
       .map(filename => {
-        // 解碼檔名顯示
         const originalName = decodeURIComponent(
           filename.substring(filename.indexOf('-') + 1)
         );
-        const filePath = `/uploads/${patientId}/${tableId}/${filename}`;
-        // 使用單次編碼，避免重複編碼
-        const fileUrl = `${req.protocol}://${req.get('host')}${encodeURI(filePath)}`;
+        const filePath = `/uploads/${patientId}/${filename}`;
+        const fileUrl = `${req.protocol}://${req.get('host')}${encodeURI(filePath)}`;        
         return {
           filename: originalName,
           encodedFilename: filename,
