@@ -69,19 +69,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-      document.getElementById('textForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const textInput = document.getElementById('textInput');
-        const text = textInput.value;
-        axios
-          .post('/text', { text })
-          .then(response => {
-            // console.log('新增成功:', response);
-            textInput.value = ''; // 清空輸入框
-            fetchTextData(); // 重新獲取所有數據
-          })
-          .catch(error => console.error('新增失敗:', error));
-      });
+      document
+        .getElementById('textForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const textInput = document.getElementById('textInput');
+          const text = textInput.value;
+          axios
+            .post('/text', { text })
+            .then(response => {
+              // console.log('新增成功:', response);
+              textInput.value = ''; // 清空輸入框
+              fetchTextData(); // 重新獲取所有數據
+            })
+            .catch(error => console.error('新增失敗:', error));
+        });
 
       // document.getElementById('saveTextForm').addEventListener('submit', function (e) {
       //   e.preventDefault();
@@ -109,26 +111,29 @@
       // });
 
       // PDF 上傳處理
-      document.getElementById('pdfForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData();
-        const pdfFile = document.getElementById('pdfInput').files[0];
-        const patientId = 'patient123';
+      document
+        .getElementById('pdfForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const formData = new FormData();
+          const pdfFile = document.getElementById('pdfInput').files[0];
+          const patientId = 'P001';
 
-        formData.append('pdf', pdfFile);
+          formData.append('pdf', pdfFile);
+          console.info(pdfFile);
 
-        axios
-          .post(`/pdf/upload/${patientId}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
-          .then(response => {
-            document.getElementById('pdfInput').value = '';
-            fetchPdfList();
-          })
-          .catch(error => console.error('PDF 上傳失敗:', error));
-      });
+          // axios
+          //   .post(`/pdf/upload/${patientId}`, formData, {
+          //     headers: {
+          //       'Content-Type': 'multipart/form-data',
+          //     },
+          //   })
+          //   .then(response => {
+          //     document.getElementById('pdfInput').value = '';
+          //     fetchPdfList();
+          //   })
+          //   .catch(error => console.error('PDF 上傳失敗:', error));
+        });
 
       function fetchTextData() {
         axios
@@ -146,7 +151,7 @@
       }
 
       function fetchPdfList() {
-        const patientId = 'patient123';
+        const patientId = 'P001';
 
         axios
           .get(`/pdf/list/${patientId}`)

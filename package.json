@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "node --watch app.js",
-    "studio": "npx prisma studio"
+    "studio": "npx prisma studio",
+    "generate": "npx prisma generate && npx prisma db push --force-reset"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
