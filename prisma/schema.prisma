@@ -7,12 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+model Patient {
+  id             String      @id@unique
+  name           String
+  email          String      
+  phone          String?
+  passwordHash   String
+  accountStatus   String   @default("active") 
+  shouldSendEmail Boolean  @default(true)    
+  gender         String
+  birthDate      DateTime
+  height         Int?
+  weight         Float?
+  bmi            Float?
+  bloodType      String?
+  address        String?
+  emergencyContactName String?
+  emergencyContactPhone String?
+  SleepData      SleepData[] 
 }
 
 model SleepData {
@@ -23,18 +35,19 @@ model SleepData {
   height                 Float
   weight                 Float
   bmi                    Float
-  recordStartTime        DateTime
-  recordEndTime          DateTime
+  recordStartTime        DateTime @default(now())
+  recordEndTime          DateTime @default(now())
   timeZone               String
   bedtimeDurationMinutes Int
   bAHI                   Float
   minSpo2                Float
   ODI                    Float
   SpO2LessThan90Percent  Int
-  sleepEfficiency        Float
+  sleepEfficiency         Float
   totalSleepTimeMinutes  Int
   quickSleepDuration     Float
   averageSleepRate       Float
   selfRegulationScore    Float    @map("self-regulationScore")
   notes                  String?
+  patient                Patient? @relation(fields: [patientId], references: [id]) 
 }

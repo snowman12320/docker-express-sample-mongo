@@ -12,6 +12,7 @@ const mySqlRouter = require('./routes/mySqlRouter');
 const sleepDataRouter = require('./routes/sleepDataRouter');
 const mailRoutes = require('./routes/mailRoutes');
 const pdfRouter = require('./routes/pdfRouter');
+const patientRouter = require('./routes/PatientRouter');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use('/mySql', mySqlRouter);
 app.use('/sleep', sleepDataRouter);
 app.use('/mail', mailRoutes);
 app.use('/pdf', pdfRouter);
+app.use('/patients', patientRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
