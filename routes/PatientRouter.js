@@ -62,8 +62,32 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const patients = await prisma.patient.findMany();
-    res.json(patients);
+    const patients = await prisma.patient.findMany({
+      include: {
+        _count: {
+          select: { SleepData: true },
+        },
+        SleepData: {
+          orderBy: { recordStartTime: 'desc' },
+          take: 1,
+          select: {
+            recordStartTime: true,
+            bAHI: true,
+          },
+        },
+      },
+    });
+
+    const formattedPatients = patients.map(patient => ({
+      ...patient,
+      totalRecordCount: patient._count.SleepData,
+      latestRecordStartTime: patient.SleepData[0]?.recordStartTime || null,
+      latestBAHI: patient.SleepData[0]?.bAHI || null,
+      SleepData: undefined,
+      _count: undefined,
+    }));
+
+    res.json(formattedPatients);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
