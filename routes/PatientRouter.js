@@ -60,27 +60,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update these routes to handle string IDs
-router.put('/:id', async (req, res) => {
-  try {
-    const { passwordHash, ...rest } = req.body;
-    let updateData = rest;
-
-    if (passwordHash) {
-      const hashedPassword = await bcrypt.hash(passwordHash, saltRounds);
-      updateData.passwordHash = hashedPassword;
-    }
-
-    const patient = await prisma.patient.update({
-      where: { id: req.params.id }, // Remove parseInt
-      data: updateData,
-    });
-    res.json(patient);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 router.get('/', async (req, res) => {
   try {
     const patients = await prisma.patient.findMany();
