@@ -8,23 +8,39 @@ datasource db {
 }
 
 model Patient {
-  id             String      @id@unique
-  name           String
-  email          String      
-  phone          String?
-  passwordHash   String
-  accountStatus   String   @default("active") 
-  shouldSendEmail Boolean  @default(true)    
-  gender         String
-  birthDate      DateTime
-  height         Int?
-  weight         Float?
-  bmi            Float?
-  bloodType      String?
-  address        String?
+  id                   String           @id @unique
+  name                 String
+  email                String      
+  phone                String?
+  passwordHash         String
+  accountStatus        String           @default("active") 
+  shouldSendEmail      Boolean          @default(true)    
+  gender               String
+  birthDate            DateTime
+  height               Int?
+  weight               Float?
+  bmi                  Float?
+  bloodType            String?
+  address              String?
   emergencyContactName String?
   emergencyContactPhone String?
-  SleepData      SleepData[] 
+  doctors              PatientDoctor[]
+  SleepData            SleepData[] 
+}
+
+model Doctor {
+  id        String           @id @unique
+  name      String
+  patients  PatientDoctor[]
+}
+
+model PatientDoctor {
+  patientId String
+  doctorId  String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+
+  @@id([patientId, doctorId])
 }
 
 model SleepData {

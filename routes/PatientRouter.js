@@ -99,6 +99,11 @@ router.get('/:id', async (req, res) => {
       where: { id: req.params.id },
       include: {
         SleepData: true,
+        doctors: {
+          include: {
+            doctor: true,
+          },
+        },
       },
     });
 
