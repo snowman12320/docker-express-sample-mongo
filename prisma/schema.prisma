@@ -9,7 +9,7 @@ datasource db {
 
 model Patient {
   id                   String           @id @unique
-  userCode             String
+  userCode             String?
   name                 String
   email                String      
   phone                String?
@@ -17,7 +17,7 @@ model Patient {
   accountStatus        String           @default("active") 
   shouldSendEmail      Boolean          @default(true)    
   gender               String
-  birthDate            DateTime
+  birthDate            String
   height               Float?
   weight               Float?
   bmi                  Float?

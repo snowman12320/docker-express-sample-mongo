@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "dev": "node --watch app.js",
     "studio": "npx prisma studio",
-    "generate": "npx prisma generate && npx prisma db push --force-reset"
+    "prisma:generate": "npx prisma generate && npx prisma db push --force",
+    "prisma:migrate": "npx prisma migrate dev --name add-usercode-column --skip-generate-shadow"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
