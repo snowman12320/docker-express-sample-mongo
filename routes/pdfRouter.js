@@ -96,14 +96,15 @@ router.post('/upload/:patientId/:sleepDataId', upload.single('pdf'), async (req,
   }
 });
 
-// 修改獲取檔案列表的路由
+// 獲取檔案列表的路由
 router.get('/list/:patientId/:sleepDataId', async (req, res) => {
   try {
     const { sleepDataId } = req.params;
     
     const files = await prisma.fileData.findMany({
       where: {
-        sleepDataId: parseInt(sleepDataId)
+        sleepDataId: parseInt(sleepDataId),
+        fileType: 'application/pdf' 
       }
     });
 

@@ -91,4 +91,30 @@ router.post('/upload/:patientId/:sleepDataId', upload.single('ct'), async (req, 
   }
 });
 
+router.get('/list/:patientId/:sleepDataId', async (req, res) => {
+  try {
+    const { sleepDataId } = req.params;
+    
+    const files = await prisma.fileData.findMany({
+      where: {
+        sleepDataId: parseInt(sleepDataId),
+        fileType: 'application/octet-stream'
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    const response = {
+      count: files.length,
+      firstFileName: files[0]?.filename || null
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('獲取檔案列表錯誤:', error);
+    res.status(500).json({ error: '無法讀取檔案列表' });
+  }
+});
+
 module.exports = router;
