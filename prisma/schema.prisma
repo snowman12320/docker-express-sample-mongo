@@ -45,7 +45,7 @@ model PatientDoctor {
 }
 
 model SleepData {
-  id                     Int      @id @default(autoincrement())
+  id                     Int         @id @default(autoincrement())
   patientId              String
   userCode               String
   ageAndGender           String
@@ -66,5 +66,20 @@ model SleepData {
   averageSleepRate       Float
   selfRegulationScore    Float    @map("self-regulationScore")
   notes                  String?
-  patient                Patient? @relation(fields: [patientId], references: [id]) 
+  patient                Patient?    @relation(fields: [patientId], references: [id])
+  files                   FileData[] @relation("SleepDataFiles")
+}
+
+model FileData {
+  id              String    @id @default(uuid())
+  sleepDataId     Int
+  filename         String
+  fileType         String
+  fileSize         Int
+  filePath         String
+  encodedFilename String
+  createdAt       DateTime  @default(now())
+  sleepData       SleepData @relation("SleepDataFiles", fields: [sleepDataId], references: [id])
+
+  @@index([sleepDataId])
 }

@@ -14,6 +14,7 @@ const mailRoutes = require('./routes/mailRoutes');
 const pdfRouter = require('./routes/pdfRouter');
 const patientRouter = require('./routes/PatientRouter');
 const doctorRouter = require('./routes/DoctorRouter');
+const ctRouter = require('./routes/ctRouter');
 
 var app = express();
 
@@ -36,6 +37,7 @@ app.use('/mail', mailRoutes);
 app.use('/pdf', pdfRouter);
 app.use('/patients', patientRouter);
 app.use('/doctors', doctorRouter);
+app.use('/ct', ctRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

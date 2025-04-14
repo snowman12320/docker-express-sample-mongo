@@ -104,13 +104,32 @@ router.get('/:id', async (req, res) => {
     const sleepData = await prisma.sleepData.findUnique({
       where: {
         id: parseInt(id)
+      },
+      include: {
+        files: {
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
       }
     });
+    
     if (!sleepData) {
       return res.status(404).json({ error: '找不到此睡眠紀錄' });
     }
-    res.json(sleepData);
+
+    // 加入檔案類型標記
+    const formattedData = {
+      ...sleepData,
+      files: sleepData.files.map(file => ({
+        ...file,
+        fileCategory: file.fileType.includes('application/octet-stream') ? 'ct' : 'pdf'
+      }))
+    };
+
+    res.json(formattedData);
   } catch (error) {
+    console.error('Get sleep data error:', error);
     res.status(500).json({ error: error.message });
   }
 });
