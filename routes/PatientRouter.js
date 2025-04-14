@@ -111,7 +111,10 @@ router.get('/', async (req, res) => {
     });
 
     const formattedPatients = patients.map(patient => ({
-      ...patient,
+      id: patient.id,
+      name: patient.name,
+      gender: patient.gender,
+      birthDate: patient.birthDate,
       totalRecordCount: patient._count.SleepData,
       latestRecordStartTime: patient.SleepData[0]?.recordStartTime || null,
       latestBAHI: patient.SleepData[0]?.bAHI || null,
@@ -130,7 +133,9 @@ router.get('/:id', async (req, res) => {
     const patient = await prisma.patient.findUnique({
       where: { id: req.params.id },
       include: {
-        SleepData: true,
+        SleepData: {
+          orderBy: { recordStartTime: 'desc' },
+        },
         doctors: {
           include: {
             doctor: true,
