@@ -68,7 +68,19 @@ async function createPatient(patientData) {
 
 router.post('/', async (req, res) => {
   try {
-    const { password, confirmPassword, ...rest } = req.body;
+    const { password, confirmPassword, id, ...rest } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: '病患 ID 不能為空' });
+    }
+
+    const existingPatient = await prisma.patient.findUnique({
+      where: { id: id }
+    });
+
+    if (existingPatient) {
+      return res.status(400).json({ error: '此病患 ID 已存在' });
+    }
 
     if (!password) {
       return res.status(400).json({ error: '密碼不能為空' });
@@ -80,9 +92,12 @@ router.post('/', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const patient = await createPatient({
-      ...rest,
-      passwordHash: hashedPassword,
+    const patient = await prisma.patient.create({
+      data: {
+        id,
+        ...rest,
+        passwordHash: hashedPassword
+      },
     });
 
     res.status(201).json(patient);
