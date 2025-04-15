@@ -109,21 +109,38 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const patients = await prisma.patient.findMany({
-      include: {
-        _count: {
-          select: { SleepData: true },
-        },
-        SleepData: {
-          orderBy: { recordStartTime: 'desc' },
-          take: 1,
-          select: {
-            recordStartTime: true,
-            bAHI: true,
+    const { search, page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {};
+    if (search) {
+      where.OR = [
+        { id: { contains: search } },
+        { name: { contains: search } }
+      ];
+    }
+
+    const [total, patients] = await Promise.all([
+      prisma.patient.count({ where }),
+      prisma.patient.findMany({
+        where,
+        skip,
+        take: parseInt(limit),
+        include: {
+          _count: {
+            select: { SleepData: true },
+          },
+          SleepData: {
+            orderBy: { recordStartTime: 'desc' },
+            take: 1,
+            select: {
+              recordStartTime: true,
+              bAHI: true,
+            },
           },
         },
-      },
-    });
+      })
+    ]);
 
     const formattedPatients = patients.map(patient => ({
       id: patient.id,
@@ -133,11 +150,17 @@ router.get('/', async (req, res) => {
       totalRecordCount: patient._count.SleepData,
       latestRecordStartTime: patient.SleepData[0]?.recordStartTime || null,
       latestBAHI: patient.SleepData[0]?.bAHI || null,
-      SleepData: undefined,
-      _count: undefined,
     }));
 
-    res.json(formattedPatients);
+    res.json({
+      data: formattedPatients,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
