@@ -25,6 +25,7 @@ model Patient {
   address              String?
   emergencyContactName String?
   emergencyContactPhone String?
+  notes                 String?
   doctors              PatientDoctor[]
   SleepData            SleepData[] 
 }

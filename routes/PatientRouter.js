@@ -153,7 +153,7 @@ router.get('/', async (req, res) => {
     }));
 
     res.json({
-      data: formattedPatients,
+      patients: formattedPatients,
       pagination: {
         total,
         page: parseInt(page),
