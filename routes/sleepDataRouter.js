@@ -118,22 +118,21 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: '找不到此睡眠紀錄' });
     }
 
+    function getFileCategory(file) {
+      const ctMimeTypes = ['application/octet-stream', 'application/dicom'];
+      const fileType = file.fileType;
+    
+      return ctMimeTypes.includes(fileType) ? 'ct' : 'pdf';
+    }
+
     // 加入檔案類型標記
     const formattedData = {
       ...sleepData,
       files: sleepData.files.map(file => ({
         ...file,
-        fileCategory: file.fileType.includes(['application/octet-stream','application/dicom']) ? 'ct' : 'pdf'
+        fileCategory: getFileCategory(file),
       }))
     };
-
-    // function getFileCategory(file) {
-    //   const ctMimeTypes = ['application/octet-stream', 'application/dicom'];
-    //   const fileType = file.type;
-    
-    //   // 判斷文件類型是否屬於 CT 或 PDF
-    //   return ctMimeTypes.includes(fileType) ? 'ct' : 'pdf';
-    // }
 
     res.json(formattedData);
   } catch (error) {

@@ -45,7 +45,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['application/octet-stream'];
+    const allowedTypes = ['application/octet-stream','application/dicom'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -71,7 +71,7 @@ router.post('/upload/:patientId/:sleepDataId', upload.single('ct'), async (req, 
     const fileData = await prisma.fileData.create({
       data: {
         filename: originalFilename,
-        fileType: req.file.mimetype,
+        fileType: 'application/dicom', //req.file.mimetype,
         fileSize: req.file.size,
         filePath: currentUrl,
         encodedFilename,
