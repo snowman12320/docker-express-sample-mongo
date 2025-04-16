@@ -123,9 +123,17 @@ router.get('/:id', async (req, res) => {
       ...sleepData,
       files: sleepData.files.map(file => ({
         ...file,
-        fileCategory: file.fileType.includes('application/octet-stream') ? 'ct' : 'pdf'
+        fileCategory: file.fileType.includes(['application/octet-stream','application/dicom']) ? 'ct' : 'pdf'
       }))
     };
+
+    // function getFileCategory(file) {
+    //   const ctMimeTypes = ['application/octet-stream', 'application/dicom'];
+    //   const fileType = file.type;
+    
+    //   // 判斷文件類型是否屬於 CT 或 PDF
+    //   return ctMimeTypes.includes(fileType) ? 'ct' : 'pdf';
+    // }
 
     res.json(formattedData);
   } catch (error) {
@@ -159,13 +167,25 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    console.info(id);
+    
+    // 先刪除關聯的檔案記錄
+    await prisma.fileData.deleteMany({
+      where: {
+        sleepDataId: parseInt(id)
+      }
+    });
+
+    // 再刪除睡眠資料
     await prisma.sleepData.delete({
       where: {
         id: parseInt(id)
       }
     });
+
     res.json({ message: '刪除成功' });
   } catch (error) {
+    console.error('Delete sleep data error:', error);
     res.status(500).json({ error: error.message });
   }
 });
