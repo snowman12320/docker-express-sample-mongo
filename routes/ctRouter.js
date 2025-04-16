@@ -54,36 +54,43 @@ const upload = multer({
   },
 });
 
-router.post('/upload/:patientId/:sleepDataId', upload.single('ct'), async (req, res) => {
+router.post('/upload/:patientId/:sleepDataId', upload.array('ct', 550), async (req, res) => {
   try {
     const { patientId, sleepDataId } = req.params;
-    if (!req.file) {
+    if (!req.files || req.files.length === 0) {
       return res.status(400).send('未選擇檔案');
     }
 
-    const originalFilename = Buffer.from(req.file.originalname).toString('utf8');
-    const encodedFilename = encodeURIComponent(req.file.filename);
-    const filePath = `/uploads/${patientId}/${sleepDataId}/ct/${encodedFilename}`;
-    // const protocol = 'https://phpstack-1387833-5352829.cloudwaysapps.com';
-    const protocol = 'http://127.0.0.1:3000';
-    const currentUrl = `${protocol}${filePath}`;
+    const uploadedFiles = [];
 
-    const fileData = await prisma.fileData.create({
-      data: {
-        filename: originalFilename,
-        fileType: 'application/dicom', //req.file.mimetype,
-        fileSize: req.file.size,
-        filePath: currentUrl,
-        encodedFilename,
-        sleepData: {
-          connect: { id: parseInt(sleepDataId) }
+    for (const file of req.files) {
+      const originalFilename = Buffer.from(file.originalname).toString('utf8');
+      const encodedFilename = encodeURIComponent(file.filename);
+      const filePath = `/uploads/${patientId}/${sleepDataId}/ct/${encodedFilename}`;
+      // const protocol = 'https://phpstack-1387833-5352829.cloudwaysapps.com';
+      const protocol = 'http://127.0.0.1:3000';
+      const currentUrl = `${protocol}${filePath}`;
+
+      const fileData = await prisma.fileData.create({
+        data: {
+          filename: originalFilename,
+          fileType: 'application/dicom', //file.mimetype,
+          fileSize: file.size,
+          filePath: currentUrl,
+          encodedFilename,
+          sleepData: {
+            connect: { id: parseInt(sleepDataId) }
+          }
         }
-      }
-    });
+      });
+
+      uploadedFiles.push(fileData);
+    }
 
     res.json({
       message: 'CT 檔案上傳成功',
-      ...fileData
+      filePaths: uploadedFiles.map(file => file.filePath),
+      fileCount: uploadedFiles.length,
     });
   } catch (error) {
     console.error('上傳處理錯誤:', error);
