@@ -105,7 +105,7 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
     const files = await prisma.fileData.findMany({
       where: {
         sleepDataId: parseInt(sleepDataId),
-        fileType: 'application/octet-stream'
+        fileType: 'application/dicom'
       },
       orderBy: {
         createdAt: 'asc'
@@ -114,7 +114,7 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
 
     const response = {
       count: files.length,
-      firstFileName: files[0]?.filename || null
+      filePaths: files.map(file => file.filePath),
     };
 
     res.json(response);
