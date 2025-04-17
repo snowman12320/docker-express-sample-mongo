@@ -114,7 +114,13 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
 
     const response = {
       count: files.length,
-      filePaths: files.map(file => file.filePath),
+      files: files.map(file => ({
+        id: file.id,
+        name: file.filename,
+        type: file.fileType,
+        url: file.filePath,
+      })),
+      
     };
 
     res.json(response);
