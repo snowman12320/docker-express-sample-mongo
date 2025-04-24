@@ -67,8 +67,7 @@ router.post('/upload/:patientId/:sleepDataId', upload.array('ct', 550), async (r
       const originalFilename = Buffer.from(file.originalname).toString('utf8');
       const encodedFilename = encodeURIComponent(file.filename);
       const filePath = `/uploads/${patientId}/${sleepDataId}/ct/${encodedFilename}`;
-      const protocol = 'https://phpstack-1387833-5352829.cloudwaysapps.com';
-      // const protocol = 'http://127.0.0.1:3000';
+      const protocol = process.env.ENV === 'dev'? process.env.DEV_URL : process.env.PROD_URL;
       const currentUrl = `${protocol}${filePath}`;
 
       const fileData = await prisma.fileData.create({
