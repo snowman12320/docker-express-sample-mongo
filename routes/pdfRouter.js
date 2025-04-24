@@ -3,7 +3,10 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const prisma = require('../service/mySql');  // 添加 prisma 引用
+const prisma = require('../service/mySql');
+const https = require('https');
+
+const PDF_CO_API_KEY = process.env.PDF_CO_API_KEY;
 
 // 新增 CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
@@ -113,5 +116,107 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
     res.status(500).json({ error: '無法讀取檔案列表' });
   }
 });
+
+// 讀取 PDF 內容的路由
+router.post('/read', async (req, res) => {
+  try {
+    const { pdfUrl } = req.body;
+    
+    if (!pdfUrl) {
+      return res.status(400).json({ error: '未提供 PDF 網址' });
+    }
+
+    const jsonPayload = JSON.stringify({
+      url: pdfUrl
+    });
+
+    const reqOptions = {
+      host: "api.pdf.co",
+      method: "POST",
+      path: "/v1/ai-invoice-parser",
+      headers: {
+        "x-api-key": PDF_CO_API_KEY,
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(jsonPayload, 'utf8')
+      }
+    };
+
+    const postRequest = https.request(reqOptions, (response) => {
+      let responseData = '';
+
+      response.on("data", (chunk) => {
+        responseData += chunk;
+      });
+
+      response.on("end", () => {
+        try {
+          const data = JSON.parse(responseData);
+          if (!data.error) {
+            checkIfJobIsCompleted(data.jobId, data.url, res);
+          } else {
+            res.status(500).json({ error: data.message });
+          }
+        } catch (error) {
+          res.status(500).json({ error: '解析回應失敗' });
+        }
+      });
+    });
+
+    postRequest.on("error", (e) => {
+      res.status(500).json({ error: '請求失敗' });
+    });
+
+    postRequest.write(jsonPayload);
+    postRequest.end();
+
+  } catch (error) {
+    console.error('PDF 讀取錯誤:', error);
+    res.status(500).json({ error: '無法讀取 PDF 內容' });
+  }
+});
+
+function checkIfJobIsCompleted(jobId, resultFileUrl, res) {
+  const queryPath = `/v1/job/check`;
+  const jsonPayload = JSON.stringify({
+    jobid: jobId
+  });
+
+  const reqOptions = {
+    host: "api.pdf.co",
+    path: queryPath,
+    method: "POST",
+    headers: {
+      "x-api-key": PDF_CO_API_KEY,
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(jsonPayload, 'utf8')
+    }
+  };
+
+  const postRequest = https.request(reqOptions, (response) => {
+    let responseData = '';
+
+    response.on("data", (chunk) => {
+      responseData += chunk;
+    });
+
+    response.on("end", () => {
+      try {
+        const data = JSON.parse(responseData);
+        if (data.status === "working") {
+          setTimeout(() => checkIfJobIsCompleted(jobId, resultFileUrl, res), 3000);
+        } else if (data.status === "success") {
+          res.json(data);
+        } else {
+          res.status(500).json({ error: `作業失敗: ${data.status}` });
+        }
+      } catch (error) {
+        res.status(500).json({ error: '解析回應失敗' });
+      }
+    });
+  });
+
+  postRequest.write(jsonPayload);
+  postRequest.end();
+}
 
 module.exports = router;
