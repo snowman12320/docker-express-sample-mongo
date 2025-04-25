@@ -224,9 +224,10 @@ function checkIfJobIsCompleted(jobId, resultFileUrl, res) {
 // pdf2json
 // https://www.youtube.com/watch?v=b2dLDqmYT4I
 // https://github.com/VLabStudio/Tutorials/blob/master/Manual%20Parsing%20in%20Node.js%20for%20beginners/Manually%20Parsing%20PDF%20in%20Node.js/parser.js
-// pdfreader https://www.youtube.com/watch?v=Ri2-wiVd-Ek
-// PDF.js https://www.youtube.com/watch?v=V_v5vqXbnCA
-// +++ pdf-parse https://www.youtube.com/watch?v=enfZAaTRTKU
+// 
+// 轉文字 pdfreader https://www.youtube.com/watch?v=Ri2-wiVd-Ek
+// 轉文字 PDF.js https://www.youtube.com/watch?v=V_v5vqXbnCA
+// +++ 有前後範本 pdf-parse https://www.youtube.com/watch?v=enfZAaTRTKU
 router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
   try {
     if (!req.file) {
