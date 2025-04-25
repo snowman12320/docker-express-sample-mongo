@@ -5,6 +5,7 @@ const path = require('path');
 const multer = require('multer');
 const prisma = require('../service/mySql');
 const https = require('https');
+const PDFParser = require("pdf2json");
 
 const PDF_CO_API_KEY = process.env.PDF_CO_API_KEY;
 
@@ -218,5 +219,56 @@ function checkIfJobIsCompleted(jobId, resultFileUrl, res) {
   postRequest.write(jsonPayload);
   postRequest.end();
 }
+
+// 上傳並讀取 PDF 內容的路由
+// pdf2json
+// https://www.youtube.com/watch?v=b2dLDqmYT4I
+// https://github.com/VLabStudio/Tutorials/blob/master/Manual%20Parsing%20in%20Node.js%20for%20beginners/Manually%20Parsing%20PDF%20in%20Node.js/parser.js
+// pdfreader https://www.youtube.com/watch?v=Ri2-wiVd-Ek
+// PDF.js https://www.youtube.com/watch?v=V_v5vqXbnCA
+// +++ pdf-parse https://www.youtube.com/watch?v=enfZAaTRTKU
+router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: '未選擇檔案' });
+    }
+
+    const pdfParser = new PDFParser(null, 1);
+
+    const result = await new Promise((resolve, reject) => {
+      pdfParser.loadPDF(req.file.path);
+
+      pdfParser.on("pdfParser_dataReady", (pdfData) => {
+        const raw = pdfParser.getRawTextContent().replace(/\r\n/g, " ");
+        const item1ToItem2 = /Item 1\s(.*?)\sItem 2/i.exec(raw);
+        resolve({
+          item1ToItem2: item1ToItem2 ? item1ToItem2[1] : null,
+          rawText: raw,
+          parsedData: pdfData
+        });
+      });
+
+      pdfParser.on("pdfParser_dataError", (error) => {
+        reject(error);
+      });
+    });
+
+    // 刪除暫存檔案
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      message: 'PDF 解析成功',
+      content: result
+    });
+
+  } catch (error) {
+    console.error('PDF 解析錯誤:', error);
+    // 確保清理暫存檔案
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ error: '無法解析 PDF 內容' });
+  }
+});
 
 module.exports = router;
