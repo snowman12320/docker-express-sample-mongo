@@ -160,7 +160,7 @@ router.post('/:id/patients', async (req, res) => {
 
     if (existingRelations.length > 0) {
       return res.status(400).json({ 
-        error: '已重複關聯',
+        message: '已重複新增',
         duplicatePatients: existingRelations.map(r => r.patientId)
       });
     }
@@ -204,12 +204,13 @@ router.delete('/:id/patients/:patientId', async (req, res) => {
   try {
     await prisma.patientDoctor.delete({
       where: {
-        doctorId_patientId: {
+        patientId_doctorId: {
           doctorId: req.params.id,
           patientId: req.params.patientId,
         },
       },
     });
+    res.json({ message: '關聯已刪除' });
     res.status(204).end();
   } catch (error) {
     res.status(500).json({ error: error.message });
