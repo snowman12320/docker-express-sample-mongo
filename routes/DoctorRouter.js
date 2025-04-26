@@ -148,8 +148,24 @@ router.post('/:id/patients', async (req, res) => {
   try {
     const { patientIds } = req.body;
 
+    // 檢查現有關聯
+    const existingRelations = await prisma.patientDoctor.findMany({
+      where: {
+        doctorId: req.params.id,
+        patientId: Array.isArray(patientIds) 
+          ? { in: patientIds }
+          : req.body.patientId
+      }
+    });
+
+    if (existingRelations.length > 0) {
+      return res.status(400).json({ 
+        error: '已重複關聯',
+        duplicatePatients: existingRelations.map(r => r.patientId)
+      });
+    }
+
     if (Array.isArray(patientIds)) {
-      // 批量新增多個病人關聯
       await prisma.patientDoctor.createMany({
         data: patientIds.map(patientId => ({
           doctorId: req.params.id,
@@ -158,7 +174,6 @@ router.post('/:id/patients', async (req, res) => {
         skipDuplicates: true,
       });
     } else {
-      // 新增單一病人關聯
       await prisma.patientDoctor.create({
         data: {
           doctorId: req.params.id,
