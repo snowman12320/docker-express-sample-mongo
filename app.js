@@ -28,6 +28,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  // console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+
+  // 更新 CORS 設定，允許多個來源
+  // const origin = process.env.ENV === 'dev' ? 'http://localhost:5173' : 'https://phpstack-1387833-5139313.cloudwaysapps.com';
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Strict-Transport-Security', 'max-age=31536000');
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  
+  // 處理 SSL/TLS 錯誤
+  req.on('error', (err) => {
+    if (err.code === 'EPROTO') {
+      console.error('SSL/TLS 錯誤:', err);
+      return res.status(500).json({ error: '連接安全性錯誤' });
+    }
+    next(err);
+  });
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/text', textRouter);
@@ -38,37 +67,6 @@ app.use('/pdf', pdfRouter);
 app.use('/patients', patientRouter);
 app.use('/doctors', doctorRouter);
 app.use('/ct', ctRouter);
-
-// app.use((req, res, next) => {
-//   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-
-//   // 更新 CORS 設定，允許多個來源
-//   // const origin ='https://phpstack-1387833-5139313.cloudwaysapps.com';
-//   // const origin = 'http://localhost:5173';
-//   const origin = '*';
-//   res.header('Access-Control-Allow-Origin', origin);
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   res.header('Access-Control-Allow-Credentials', 'true');
-//   res.header('Strict-Transport-Security', 'max-age=31536000');
-//   res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-//   res.set('Pragma', 'no-cache');
-//   res.set('Expires', '0');
-  
-//   // 處理 SSL/TLS 錯誤
-//   req.on('error', (err) => {
-//     if (err.code === 'EPROTO') {
-//       console.error('SSL/TLS 錯誤:', err);
-//       return res.status(500).json({ error: '連接安全性錯誤' });
-//     }
-//     next(err);
-//   });
-
-//   if (req.method === 'OPTIONS') {
-//     return res.sendStatus(200);
-//   }
-//   next();
-// });
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
