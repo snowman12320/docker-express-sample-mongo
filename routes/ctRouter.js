@@ -129,4 +129,55 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
   }
 });
 
+// 刪除指定睡眠資料的所有 CT 檔案
+router.delete('/delete/:patientId/:sleepDataId', async (req, res) => {
+  try {
+    const { patientId, sleepDataId } = req.params;
+
+    // 查詢該睡眠資料下的所有 CT 檔案
+    const files = await prisma.fileData.findMany({
+      where: {
+        sleepDataId: parseInt(sleepDataId),
+        fileType: 'application/dicom'
+      }
+    });
+
+    if (files.length === 0) {
+      return res.status(404).json({ error: '找不到 CT 檔案' });
+    }
+
+    // 刪除實體檔案
+    for (const file of files) {
+      const filePath = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/ct/${file.encodedFilename}`);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    // 從資料庫批量刪除檔案記錄
+    await prisma.fileData.deleteMany({
+      where: {
+        sleepDataId: parseInt(sleepDataId),
+        fileType: 'application/dicom'
+      }
+    });
+
+    // 嘗試刪除空的資料夾
+    const ctDir = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/ct`);
+    if (fs.existsSync(ctDir)) {
+      fs.rmdirSync(ctDir);
+    }
+
+    res.json({
+      message: 'CT 檔案刪除成功',
+      deletedCount: files.length,
+      deletedFiles: files
+    });
+
+  } catch (error) {
+    console.error('刪除檔案錯誤:', error);
+    res.status(500).json({ error: '檔案刪除失敗' });
+  }
+});
+
 module.exports = router;
