@@ -72,7 +72,7 @@ model SleepData {
 }
 
 model FileData {
-  id              String    @id @default(uuid())
+  id              Int    @id @default(autoincrement())
   sleepDataId     Int
   filename         String
   fileType         String

@@ -272,4 +272,46 @@ router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
   }
 });
 
+// 刪除 PDF 檔案的路由
+router.delete('/delete/:patientId/:sleepDataId/:fileId', async (req, res) => {
+  try {
+    const { patientId, sleepDataId, fileId } = req.params;
+
+    // 從資料庫查詢檔案資訊
+    const fileData = await prisma.fileData.findUnique({
+      where: {
+        id: parseInt(fileId)
+      }
+    });
+
+    if (!fileData) {
+      return res.status(404).json({ error: '找不到檔案' });
+    }
+
+    // 構建實體檔案路徑
+    const filePath = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/${fileData.encodedFilename}`);
+
+    // 刪除實體檔案
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // 從資料庫中刪除檔案記錄
+    await prisma.fileData.delete({
+      where: {
+        id: parseInt(fileId)
+      }
+    });
+
+    res.json({
+      message: 'PDF 刪除成功',
+      deletedFile: fileData
+    });
+
+  } catch (error) {
+    console.error('刪除檔案錯誤:', error);
+    res.status(500).json({ message: '檔案刪除失敗' });
+  }
+});
+
 module.exports = router;
