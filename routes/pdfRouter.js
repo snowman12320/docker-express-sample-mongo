@@ -3,18 +3,11 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const prisma = require('../service/mySql');
+const prisma = require('../services/mySql');
 const https = require('https');
 const PDFParser = require("pdf2json");
 
-const PDF_CO_API_KEY = process.env.PDF_CO_API_KEY;
-
-// 新增 CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-
-  // CORS 設定
-  // const origin = 'https://phpstack-1387833-5139313.cloudwaysapps.com';
   const origin = '*';
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -41,7 +34,6 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    // 處理中文檔名
     const originalname = Buffer.from(file.originalname).toString('utf8');
     const encodedFilename = encodeURIComponent(path.parse(originalname).name);
     const timestamp = Date.now();
@@ -61,7 +53,6 @@ const upload = multer({
   },
 });
 
-// PDF 上傳處理
 router.post('/upload/:patientId/:sleepDataId', upload.single('pdf'), async (req, res) => {
   try {
     const { patientId, sleepDataId } = req.params;
@@ -99,7 +90,6 @@ router.post('/upload/:patientId/:sleepDataId', upload.single('pdf'), async (req,
   }
 });
 
-// 獲取檔案列表的路由
 router.get('/list/:patientId/:sleepDataId', async (req, res) => {
   try {
     const { sleepDataId } = req.params;
@@ -118,7 +108,6 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
   }
 });
 
-// 讀取 PDF 內容的路由
 router.post('/read', async (req, res) => {
   try {
     const { pdfUrl } = req.body;
@@ -136,7 +125,7 @@ router.post('/read', async (req, res) => {
       method: "POST",
       path: "/v1/ai-invoice-parser",
       headers: {
-        "x-api-key": PDF_CO_API_KEY,
+        "x-api-key": process.env.PDF_CO_API_KEY,
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(jsonPayload, 'utf8')
       }
@@ -187,7 +176,7 @@ function checkIfJobIsCompleted(jobId, resultFileUrl, res) {
     path: queryPath,
     method: "POST",
     headers: {
-      "x-api-key": PDF_CO_API_KEY,
+      "x-api-key": process.env.PDF_CO_API_KEY,
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(jsonPayload, 'utf8')
     }
@@ -254,7 +243,6 @@ router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
       });
     });
 
-    // 刪除暫存檔案
     fs.unlinkSync(req.file.path);
 
     res.json({
@@ -264,7 +252,6 @@ router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
 
   } catch (error) {
     console.error('PDF 解析錯誤:', error);
-    // 確保清理暫存檔案
     if (req.file && req.file.path) {
       fs.unlinkSync(req.file.path);
     }
@@ -272,12 +259,10 @@ router.post('/pdf2json', upload.single('pdf'), async (req, res) => {
   }
 });
 
-// 刪除 PDF 檔案的路由
 router.delete('/delete/:patientId/:sleepDataId/:fileId', async (req, res) => {
   try {
     const { patientId, sleepDataId, fileId } = req.params;
 
-    // 從資料庫查詢檔案資訊
     const fileData = await prisma.fileData.findUnique({
       where: {
         id: parseInt(fileId)
@@ -288,15 +273,12 @@ router.delete('/delete/:patientId/:sleepDataId/:fileId', async (req, res) => {
       return res.status(404).json({ error: '找不到檔案' });
     }
 
-    // 構建實體檔案路徑
     const filePath = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/${fileData.encodedFilename}`);
 
-    // 刪除實體檔案
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
 
-    // 從資料庫中刪除檔案記錄
     await prisma.fileData.delete({
       where: {
         id: parseInt(fileId)

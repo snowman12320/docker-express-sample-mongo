@@ -3,9 +3,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const prisma = require('../service/mySql');
+const prisma = require('../services/mySql');
 
-// CORS 中介軟體設定
 router.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   const origin = '*';
@@ -129,12 +128,10 @@ router.get('/list/:patientId/:sleepDataId', async (req, res) => {
   }
 });
 
-// 刪除指定睡眠資料的所有 CT 檔案
 router.delete('/delete/:patientId/:sleepDataId', async (req, res) => {
   try {
     const { patientId, sleepDataId } = req.params;
 
-    // 查詢該睡眠資料下的所有 CT 檔案
     const files = await prisma.fileData.findMany({
       where: {
         sleepDataId: parseInt(sleepDataId),
@@ -146,7 +143,6 @@ router.delete('/delete/:patientId/:sleepDataId', async (req, res) => {
       return res.status(404).json({ error: '找不到 CT 檔案' });
     }
 
-    // 刪除實體檔案
     for (const file of files) {
       const filePath = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/ct/${file.encodedFilename}`);
       if (fs.existsSync(filePath)) {
@@ -154,7 +150,6 @@ router.delete('/delete/:patientId/:sleepDataId', async (req, res) => {
       }
     }
 
-    // 從資料庫批量刪除檔案記錄
     await prisma.fileData.deleteMany({
       where: {
         sleepDataId: parseInt(sleepDataId),
@@ -162,7 +157,6 @@ router.delete('/delete/:patientId/:sleepDataId', async (req, res) => {
       }
     });
 
-    // 嘗試刪除空的資料夾
     const ctDir = path.join(__dirname, `../public/uploads/${patientId}/${sleepDataId}/ct`);
     if (fs.existsSync(ctDir)) {
       fs.rmdirSync(ctDir);

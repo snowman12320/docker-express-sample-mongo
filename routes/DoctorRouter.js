@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../service/mySql');
+const prisma = require('../services/mySql');
 
-// CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-
-  // 更新 CORS 設定，允許多個來源
-  // const origin ='https://phpstack-1387833-5139313.cloudwaysapps.com';
-  // const origin = 'http://localhost:5173';
   const origin = '*';
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -19,7 +13,6 @@ router.use((req, res, next) => {
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
 
-  // 處理 SSL/TLS 錯誤
   req.on('error', err => {
     if (err.code === 'EPROTO') {
       console.error('SSL/TLS 錯誤:', err);
@@ -63,7 +56,6 @@ async function createDoctor(doctorData) {
   });
 }
 
-// 建立新醫生
 router.post('/', async (req, res) => {
   try {
     const doctor = await createDoctor(req.body);
@@ -73,7 +65,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 取得所有醫生列表
 router.get('/', async (req, res) => {
   try {
     const doctors = await prisma.doctor.findMany({
@@ -96,7 +87,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 取得特定醫生資料
 router.get('/:id', async (req, res) => {
   try {
     const doctor = await prisma.doctor.findUnique({
@@ -118,7 +108,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 更新醫生資料
 router.put('/:id', async (req, res) => {
   try {
     const doctor = await prisma.doctor.update({
@@ -131,7 +120,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 刪除醫生
 router.delete('/:id', async (req, res) => {
   try {
     await prisma.doctor.delete({
@@ -143,12 +131,10 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// 新增病人關聯
 router.post('/:id/patients', async (req, res) => {
   try {
     const { patientIds } = req.body;
 
-    // 檢查現有關聯
     const existingRelations = await prisma.patientDoctor.findMany({
       where: {
         doctorId: req.params.id,
@@ -199,7 +185,6 @@ router.post('/:id/patients', async (req, res) => {
   }
 });
 
-// 移除病人關聯
 router.delete('/:id/patients/:patientId', async (req, res) => {
   try {
     await prisma.patientDoctor.delete({

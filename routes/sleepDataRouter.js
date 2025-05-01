@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../service/mySql');
+const prisma = require('../services/mySql');
 
-// CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-
-  // 更新 CORS 設定，允許多個來源
-  // const origin ='https://phpstack-1387833-5139313.cloudwaysapps.com';
-  // const origin = 'http://localhost:5173';
   const origin = '*';
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -19,7 +13,6 @@ router.use((req, res, next) => {
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
   
-  // 處理 SSL/TLS 錯誤
   req.on('error', (err) => {
     if (err.code === 'EPROTO') {
       console.error('SSL/TLS 錯誤:', err);
@@ -34,12 +27,10 @@ router.use((req, res, next) => {
   next();
 });
 
-// 新增睡眠資料 (不寫死資料)
 router.post('/', async (req, res) => {
   try {
     const data = req.body;
     
-    // 檢查必要欄位
     if (!data.patientId) {
       return res.status(400).json({ error: '病患 ID 為必填項目' });
     }
@@ -61,13 +52,11 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 修改路由路徑，使用查詢參數而不是路徑參數
 router.get('/', async (req, res) => {
   try {
     const { patientId } = req.query;
     
     if (!patientId) {
-      // 如果沒有提供 patientId，返回所有記錄
       const allSleepData = await prisma.sleepData.findMany({
         orderBy: {
           recordStartTime: 'desc'
@@ -76,7 +65,6 @@ router.get('/', async (req, res) => {
       return res.json(allSleepData);
     }
 
-    // 依照病患 ID 查詢
     const sleepData = await prisma.sleepData.findMany({
       where: {
         patientId: patientId
@@ -97,7 +85,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 獲取特定睡眠紀錄
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -125,7 +112,6 @@ router.get('/:id', async (req, res) => {
       return ctMimeTypes.includes(fileType) ? 'ct' : 'pdf';
     }
 
-    // 加入檔案類型標記
     const formattedData = {
       ...sleepData,
       files: sleepData.files.map(file => ({
@@ -141,7 +127,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 更新睡眠資料
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -162,20 +147,17 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 刪除睡眠資料
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.info(id);
     
-    // 先刪除關聯的檔案記錄
     await prisma.fileData.deleteMany({
       where: {
         sleepDataId: parseInt(id)
       }
     });
 
-    // 再刪除睡眠資料
     await prisma.sleepData.delete({
       where: {
         id: parseInt(id)

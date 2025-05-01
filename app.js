@@ -1,27 +1,20 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 
-require('./service/db');
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const textRouter = require('./routes/textRouter');
-const mySqlRouter = require('./routes/mySqlRouter');
+const indexRouter = require('./routes/index');
 const sleepDataRouter = require('./routes/sleepDataRouter');
-const mailRoutes = require('./routes/mailRoutes');
 const pdfRouter = require('./routes/pdfRouter');
 const patientRouter = require('./routes/PatientRouter');
 const doctorRouter = require('./routes/DoctorRouter');
 const ctRouter = require('./routes/ctRouter');
 
-var app = express();
+const app = express();
 app.use(cors());
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -32,22 +25,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/text', textRouter);
-app.use('/mySql', mySqlRouter);
 app.use('/sleep', sleepDataRouter);
-app.use('/mail', mailRoutes);
 app.use('/pdf', pdfRouter);
 app.use('/patients', patientRouter);
 app.use('/doctors', doctorRouter);
 app.use('/ct', ctRouter);
 
-// catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

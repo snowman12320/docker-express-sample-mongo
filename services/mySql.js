@@ -18,7 +18,6 @@ async function connectWithRetry(maxRetries = 5) {
     } catch (error) {
       console.error(`Connection attempt ${i + 1} failed:`, error);
       if (i === maxRetries - 1) throw error;
-      // 等待 2 秒後重試
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }

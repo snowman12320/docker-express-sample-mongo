@@ -1,16 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../service/mySql');
+const prisma = require('../services/mySql');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
-// CORS 和錯誤處理中介軟體
 router.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-
-  // 更新 CORS 設定，允許多個來源
-  // const origin ='https://phpstack-1387833-5139313.cloudwaysapps.com';
-  // const origin = 'http://localhost:5173';
   const origin = '*';
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,7 +15,6 @@ router.use((req, res, next) => {
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
 
-  // 處理 SSL/TLS 錯誤
   req.on('error', err => {
     if (err.code === 'EPROTO') {
       console.error('SSL/TLS 錯誤:', err);
