@@ -7,7 +7,7 @@
     "dev": "node --watch app.js",
     "studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate && npx prisma db push",
-    "prisma:generate--force-reset": "npx prisma generate && npx prisma db push --force-reset",
+    "prisma:generate--force-reset": "npx prisma generate && npx prisma db push",
     "prisma:migrate": "npx prisma migrate dev --name add-usercode-column --skip-generate-shadow"
   },
   "dependencies": {
