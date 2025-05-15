@@ -4,9 +4,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
-const geminiRouter = require("./routes/geminiRouter");
 
 const indexRouter = require("./routes/index");
+const geminiRouter = require("./routes/geminiRouter");
 // const sleepDataRouter = require('./routes/sleepDataRouter');
 // const pdfRouter = require('./routes/pdfRouter');
 // const patientRouter = require('./routes/PatientRouter');
@@ -26,12 +26,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
+app.use("/gemini", geminiRouter);
 // app.use('/sleep', sleepDataRouter);
 // app.use('/pdf', pdfRouter);
 // app.use('/patients', patientRouter);
 // app.use('/doctors', doctorRouter);
 // app.use('/ct', ctRouter);
-app.use("/gemini", geminiRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));

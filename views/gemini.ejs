@@ -3,87 +3,162 @@
   <head>
     <title><%= title %></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <style>
       body {
         overflow-y: hidden;
       }
-
-      @media (max-width: 768px) {
-        .mobile-panel {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          z-index: 50;
-          max-height: 100%;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .mobile-panel-open {
-          height: auto;
-        }
-
-        .mobile-panel-closed {
-          height: 3rem;
-        }
+      
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+      
+      .accordion-open {
+        max-height: 1000px;
       }
     </style>
   </head>
   <body class="font-sans bg-gray-100 text-gray-700 h-screen flex flex-col">
     <div class="container mx-auto flex flex-col md:flex-row gap-5 p-5 h-full">
       <!-- 回饋選項面板 (左側) -->
-      <div
-        id="feedbackPanel"
-        class="mobile-panel mobile-panel-closed md:static md:w-1/3 bg-white rounded-lg shadow md:h-full overflow-hidden flex flex-col"
-      >
+      <div class="feedback-options md:w-1/3 bg-white rounded-lg shadow md:h-full overflow-hidden flex flex-col">
         <!-- 回饋選項標題 -->
         <div class="bg-blue-600 text-white p-3">
           <div class="flex justify-between items-center">
             <p class="font-bold text-lg">回饋選項</p>
-            <button
-              id="toggleAllFeedback"
-              class="md:hidden px-2 py-1 bg-white text-blue-600 rounded-md text-sm"
-            >
+            <button id="toggleAllFeedback" class="md:hidden px-2 py-1 bg-white text-blue-600 rounded-md text-sm">
               <span id="toggleAllIcon">+</span>
             </button>
           </div>
         </div>
-
+        
         <!-- 回饋選項內容 (可捲動) -->
-        <div
-          id="feedbackContent"
-          class="hidden md:block overflow-y-auto flex-grow p-4"
-        >
-          <!-- 動態生成的手風琴 -->
-          <div id="mainAccordionContainer">
-            <!-- 主手風琴由JavaScript填充 -->
+        <div id="feedbackContent" class="overflow-y-auto flex-grow p-4">
+          <!-- 表達方面手風琴 -->
+          <div class="accordion mb-3 border border-gray-200 rounded-lg">
+            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+              <span class="font-semibold">表達方面</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-content p-3">
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達很自然流暢" /> 表達很自然流暢</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達停頓點自然" /> 表達停頓點自然</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="聲音音調正常" /> 聲音音調正常</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="語句連貫性佳" /> 語句連貫性佳</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達不太自然像機器人" /> 表達不太自然像機器人</label>
+            </div>
+          </div>
+          
+          <!-- 態度方面手風琴 -->
+          <div class="accordion mb-3 border border-gray-200 rounded-lg">
+            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+              <span class="font-semibold">態度方面</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-content p-3">
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度很適合該語句" /> 態度很適合該語句</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="情感表達豐富" /> 情感表達豐富</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="語氣自然" /> 語氣自然</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度平淡" /> 態度平淡</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度高亢過頭" /> 態度高亢過頭</label>
+            </div>
+          </div>
+          
+          <!-- 音訊音質手風琴 -->
+          <div class="accordion mb-3 border border-gray-200 rounded-lg">
+            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+              <span class="font-semibold">音訊音質</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-content p-3">
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="音質非常清晰" /> 音質非常清晰</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="清楚不會有噪音" /> 清楚不會有噪音</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="音量適中" /> 音量適中</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="有一點噪音" /> 有一點噪音</label>
+              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="噪音很明顯" /> 噪音很明顯</label>
+            </div>
+          </div>
+          
+          <!-- 相關性評級手風琴 -->
+          <div class="accordion border border-gray-200 rounded-lg">
+            <div class="accordion-header bg-blue-600 text-white p-3 flex justify-between items-center cursor-pointer">
+              <span class="font-semibold">相關性評級</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-content p-3">
+              <!-- 優秀子手風琴 -->
+              <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
+                <div class="sub-accordion-header bg-green-100 p-2 flex justify-between items-center cursor-pointer">
+                  <span class="font-medium">優秀 (Excellent)</span>
+                  <span class="sub-accordion-icon">+</span>
+                </div>
+                <div class="sub-accordion-content p-2 pl-4">
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有強烈的關聯" /> 與使用者查詢有強烈的關聯</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="最有可能引起使用者興趣" /> 最有可能引起使用者興趣</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="功能匹配最明顯的興趣/需求" /> 功能匹配最明顯的興趣/需求</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="精確名稱匹配" /> 精確名稱匹配</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="直接競爭對手" /> 直接競爭對手</label>
+                </div>
+              </div>
+              
+              <!-- 良好子手風琴 -->
+              <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
+                <div class="sub-accordion-header bg-blue-100 p-2 flex justify-between items-center cursor-pointer">
+                  <span class="font-medium">良好 (Good)</span>
+                  <span class="sub-accordion-icon">+</span>
+                </div>
+                <div class="sub-accordion-content p-2 pl-4">
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有關聯" /> 與使用者查詢有關聯</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="很可能引起使用者興趣" /> 很可能引起使用者興趣</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="連結較弱但具邏輯性且可能引起興趣" /> 連結較弱但具邏輯性且可能引起興趣</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="附屬應用程式" /> 附屬應用程式</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="可能有其他應用程式更具吸引力" /> 可能有其他應用程式更具吸引力</label>
+                </div>
+              </div>
+              
+              <!-- 可接受子手風琴 -->
+              <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
+                <div class="sub-accordion-header bg-yellow-100 p-2 flex justify-between items-center cursor-pointer">
+                  <span class="font-medium">可接受 (Acceptable)</span>
+                  <span class="sub-accordion-icon">+</span>
+                </div>
+                <div class="sub-accordion-content p-2 pl-4">
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有輕微關聯" /> 與使用者查詢有輕微關聯</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="使用者看到廣告不會感到驚訝" /> 使用者看到廣告不會感到驚訝</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="相關性處於邊緣" /> 相關性處於邊緣</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="連結微弱" /> 連結微弱</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="不太可能引起使用者興趣" /> 不太可能引起使用者興趣</label>
+                </div>
+              </div>
+              
+              <!-- 差子手風琴 -->
+              <div class="sub-accordion border border-gray-200 rounded-lg">
+                <div class="sub-accordion-header bg-red-100 p-2 flex justify-between items-center cursor-pointer">
+                  <span class="font-medium">差 (Bad)</span>
+                  <span class="sub-accordion-icon">+</span>
+                </div>
+                <div class="sub-accordion-content p-2 pl-4">
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者意圖無任何關聯" /> 與使用者意圖無任何關聯</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="讓使用者驚訝或讓體驗變差" /> 讓使用者驚訝或讓體驗變差</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="無可感知連結" /> 無可感知連結</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="技術上關聯但不合邏輯" /> 技術上關聯但不合邏輯</label>
+                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="冒犯性結果" /> 冒犯性結果</label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 聊天室 (右側) -->
-      <div
-        id="chatbox"
-        class="w-full md:w-2/3 bg-white rounded-lg shadow flex flex-col h-full"
-      >
-        <h1
-          class="text-xl font-bold text-blue-700 p-4 border-b border-gray-200"
-        >
-          <%= title %>
-        </h1>
-        <div
-          class="message-area flex-grow overflow-y-auto p-4"
-          id="messageArea"
-        >
+      <div id="chatbox" class="w-full md:w-2/3 bg-white rounded-lg shadow flex flex-col h-full">
+        <h1 class="text-xl font-bold text-blue-700 p-4 border-b border-gray-200"><%= title %></h1>
+        <div class="message-area flex-grow overflow-y-auto p-4" id="messageArea">
           <!-- 聊天訊息將顯示在這裡 -->
         </div>
         <div class="border-t border-gray-200 p-4">
-          <div
-            id="loadingIndicator"
-            class="text-center text-gray-500 mb-2"
-            style="display: none"
-          >
+          <div id="loadingIndicator" class="text-center text-gray-500 mb-2" style="display: none">
             處理中...
           </div>
           <div class="flex items-center gap-2">
@@ -104,122 +179,7 @@
       </div>
     </div>
 
-    <!-- 背景遮罩 - 用於移動端 -->
-    <div
-      id="mobileOverlay"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
-    ></div>
-
     <script>
-      // 回饋選項數據 - 使用JavaScript對象結構來存儲所有選項
-      const feedbackCategories = [
-        {
-          id: "expression",
-          title: "表達方面",
-          bgColor: "bg-gray-100",
-          options: [
-            "表達很自然流暢",
-            "表達停頓點自然",
-            "聲音音調正常",
-            "語句連貫性佳",
-            "表達不太自然像機器人",
-          ],
-        },
-        {
-          id: "attitude",
-          title: "態度方面",
-          bgColor: "bg-gray-100",
-          options: [
-            "態度很適合該語句",
-            "情感表達豐富",
-            "語氣自然",
-            "態度平淡",
-            "態度高亢過頭",
-          ],
-        },
-        {
-          id: "audio",
-          title: "音訊音質",
-          bgColor: "bg-gray-100",
-          options: [
-            "音質非常清晰",
-            "清楚不會有噪音",
-            "音量適中",
-            "有一點噪音",
-            "噪音很明顯",
-          ],
-        },
-        {
-          id: "relevance",
-          title: "相關性評級",
-          bgColor: "bg-blue-600 text-white",
-          subCategories: [
-            {
-              id: "excellent",
-              title: "優秀 (Excellent)",
-              bgColor: "bg-green-100",
-              options: [
-                "與使用者查詢有強烈的關聯",
-                "最有可能引起使用者興趣",
-                "功能匹配最明顯的興趣/需求",
-                "精確名稱匹配",
-                "直接競爭對手",
-              ],
-            },
-            {
-              id: "good",
-              title: "良好 (Good)",
-              bgColor: "bg-blue-100",
-              options: [
-                "與使用者查詢有關聯",
-                "很可能引起使用者興趣",
-                "連結較弱但具邏輯性且可能引起興趣",
-                "附屬應用程式",
-                "可能有其他應用程式更具吸引力",
-              ],
-            },
-            {
-              id: "acceptable",
-              title: "可接受 (Acceptable)",
-              bgColor: "bg-yellow-100",
-              options: [
-                "與使用者查詢有輕微關聯",
-                "使用者看到廣告不會感到驚訝",
-                "相關性處於邊緣",
-                "連結微弱",
-                "不太可能引起使用者興趣",
-              ],
-            },
-            {
-              id: "bad",
-              title: "差 (Bad)",
-              bgColor: "bg-red-100",
-              options: [
-                "與使用者意圖無任何關聯",
-                "讓使用者驚訝或讓體驗變差",
-                "無可感知連結",
-                "技術上關聯但不合邏輯",
-                "冒犯性結果",
-              ],
-            },
-          ],
-        },
-      ];
-
-      // DOM 元素
-      const feedbackPanel = document.getElementById("feedbackPanel");
-      const feedbackContent = document.getElementById("feedbackContent");
-      const toggleAllFeedback = document.getElementById("toggleAllFeedback");
-      const toggleAllIcon = document.getElementById("toggleAllIcon");
-      const mobileOverlay = document.getElementById("mobileOverlay");
-      const mainAccordionContainer = document.getElementById(
-        "mainAccordionContainer"
-      );
-      const messageArea = document.getElementById("messageArea");
-      const userInput = document.getElementById("userInput");
-      const sendButton = document.getElementById("sendButton");
-      const loadingIndicator = document.getElementById("loadingIndicator");
-
       // 通用函數 - 創建消息元素
       function createMessageElement(text, className) {
         const messageDiv = document.createElement("div");
@@ -241,10 +201,10 @@
 
         // 將換行符轉換為 <br>
         messageDiv.innerHTML = text.replace(/\\n/g, "<br>");
-
+        
         return messageDiv;
       }
-
+      
       // 通用函數 - 加入複製按鈕
       function addCopyButton(messageDiv, text) {
         const copyButton = document.createElement("button");
@@ -276,169 +236,158 @@
         };
         messageDiv.appendChild(copyButton);
       }
-
-      // 創建手風琴項目
-      function createAccordionItem(
-        category,
-        isSubCategory = false,
-        parentId = ""
-      ) {
-        const accordionId = isSubCategory
-          ? `${parentId}-${category.id}`
-          : category.id;
-        const accordionItem = document.createElement("div");
-        accordionItem.classList.add("accordion-item", "mb-2");
-
-        const headerClasses = isSubCategory
-          ? `p-2 rounded-md ${category.bgColor}`
-          : `p-3 rounded-md ${category.bgColor} font-semibold`;
-
-        accordionItem.innerHTML = `
-          <h2 id="accordion-heading-${accordionId}">
-            <button
-              type="button"
-              class="flex items-center justify-between w-full ${headerClasses}"
-              data-accordion-target="#accordion-body-${accordionId}"
-              aria-expanded="false"
-              aria-controls="accordion-body-${accordionId}"
-            >
-              <span>${category.title}</span>
-              <svg
-                class="w-4 h-4 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </button>
-          </h2>
-          <div
-            id="accordion-body-${accordionId}"
-            class="hidden"
-            aria-labelledby="accordion-heading-${accordionId}"
-          >
-            <div class="p-3">
-              ${
-                category.options
-                  ? category.options
-                      .map(
-                        (option) => `
-                        <div class="flex items-center mb-2">
-                          <input
-                            type="checkbox"
-                            id="${accordionId}-${option}"
-                            value="${option}"
-                            class="w-4 h-4 text-blue-600 rounded"
-                          />
-                          <label for="${accordionId}-${option}" class="ml-2 text-sm">${option}</label>
-                        </div>
-                      `
-                      )
-                      .join("")
-                  : ""
-              }
-              ${
-                category.subCategories
-                  ? category.subCategories
-                      .map(
-                        (subCat) =>
-                          createAccordionItem(subCat, true, category.id)
-                            .outerHTML
-                      )
-                      .join("")
-                  : ""
-              }
-            </div>
-          </div>
-        `;
-
-        return accordionItem;
-      }
-
-      // 初始化手風琴
-      function initializeAccordion() {
-        feedbackCategories.forEach((category) => {
-          const accordionItem = createAccordionItem(category);
-          mainAccordionContainer.appendChild(accordionItem);
-        });
-
-        // 初始化 Flowbite 手風琴
-        const accordionItems = document.querySelectorAll(".accordion-item");
-        accordionItems.forEach((item) => {
-          const button = item.querySelector("button");
-          const body = item.querySelector(".accordion-body");
-          button.addEventListener("click", () => {
-            const isExpanded = button.getAttribute("aria-expanded") === "true";
-            button.setAttribute("aria-expanded", !isExpanded);
-            body.classList.toggle("hidden");
-            const icon = button.querySelector("svg");
-            icon.classList.toggle("rotate-180");
+      
+      // 通用函數 - 處理手風琴開關
+      function setupAccordions(accordionSelector, contentSelector, iconSelector) {
+        const accordions = document.querySelectorAll(accordionSelector);
+        
+        accordions.forEach(header => {
+          header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector(iconSelector);
+            
+            // 切換內容顯示狀態
+            content.classList.toggle('accordion-open');
+            
+            // 更新圖標
+            icon.textContent = content.classList.contains('accordion-open') ? '-' : '+';
           });
         });
       }
+      
+      // DOM 元素
+      const messageArea = document.getElementById("messageArea");
+      const userInput = document.getElementById("userInput");
+      const loadingIndicator = document.getElementById("loadingIndicator");
+      const feedbackContent = document.getElementById("feedbackContent");
+      const toggleAllFeedback = document.getElementById("toggleAllFeedback");
+      const toggleAllIcon = document.getElementById("toggleAllIcon");
+      const sendButton = document.getElementById("sendButton");
+      
+      // 初始化頁面
+      document.addEventListener("DOMContentLoaded", () => {
+        // 處理主手風琴
+        setupAccordions('.accordion-header', '.accordion-content', '.accordion-icon');
+        
+        // 處理子手風琴
+        setupAccordions('.sub-accordion-header', '.sub-accordion-content', '.sub-accordion-icon');
+        
+        // 移動設備優化
+        if (window.innerWidth < 768) {
+          feedbackContent.style.display = "none";
+          toggleAllIcon.textContent = "+";
+        }
+        
+        // 全部收合/展開按鈕
+        toggleAllFeedback.addEventListener("click", () => {
+          const isHidden = feedbackContent.style.display === "none";
+          feedbackContent.style.display = isHidden ? "block" : "none";
+          toggleAllIcon.textContent = isHidden ? "-" : "+";
+        });
+        
+        // 處理勾選框事件
+        setupCheckboxes();
+      });
+      
+      // 發送消息函數
+      async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
 
-      // 移動端面板切換
-      function toggleMobilePanel() {
-        const isOpen = feedbackPanel.classList.contains("mobile-panel-open");
-        feedbackPanel.classList.toggle("mobile-panel-open", !isOpen);
-        feedbackPanel.classList.toggle("mobile-panel-closed", isOpen);
-        feedbackContent.classList.toggle("hidden", isOpen);
-        mobileOverlay.classList.toggle("hidden", isOpen);
-        toggleAllIcon.textContent = isOpen ? "+" : "−";
-      }
-
-      // 處理聊天功能
-      async function handleSendMessage() {
-        const messageText = userInput.value.trim();
-        if (!messageText) return;
-
-        // 添加使用者消息
-        const userMessage = createMessageElement(messageText, "user-message");
-        addCopyButton(userMessage, messageText);
-        messageArea.appendChild(userMessage);
+        appendMessage(message, "user-message");
         userInput.value = "";
-        messageArea.scrollTop = messageArea.scrollHeight;
-
-        // 顯示加載指示器
         loadingIndicator.style.display = "block";
 
-        try {
-          // 模擬 API 調用
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          const botResponse = `收到您的訊息：${messageText}\n這是模擬回應。`;
+        // 清除勾選框
+        clearCheckboxes();
 
-          // 添加機器人消息
-          const botMessage = createMessageElement(
-            botResponse,
-            "gemini-message"
-          );
-          addCopyButton(botMessage, botResponse);
-          messageArea.appendChild(botMessage);
-          messageArea.scrollTop = messageArea.scrollHeight;
-        } catch (error) {
-          console.error("錯誤:", error);
-          const errorMessage = createMessageElement(
-            "抱歉，發生錯誤，請稍後再試。",
-            "gemini-message"
-          );
-          messageArea.appendChild(errorMessage);
-        } finally {
+        try {
+          const response = await fetch("/gemini/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+          });
+
           loadingIndicator.style.display = "none";
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            appendMessage(
+              `錯誤: ${errorData.error || response.statusText}`,
+              "gemini-message"
+            );
+            return;
+          }
+
+          const data = await response.json();
+          appendMessage(data.response, "gemini-message");
+        } catch (error) {
+          loadingIndicator.style.display = "none";
+          appendMessage(`請求失敗: ${error.message}`, "gemini-message");
+          console.error("傳送訊息錯誤:", error);
         }
       }
 
-      // 事件監聽器
-      toggleAllFeedback.addEventListener("click", toggleMobilePanel);
-      mobileOverlay.addEventListener("click", toggleMobilePanel);
-      sendButton.addEventListener("click", handleSendMessage);
-      userInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") handleSendMessage();
-      });
+      // 加入消息到聊天區域
+      function appendMessage(text, className) {
+        const messageDiv = createMessageElement(text, className);
+        
+        if (className === "gemini-message") {
+          addCopyButton(messageDiv, text);
+        }
 
-      // 初始化
-      initializeAccordion();
+        messageArea.appendChild(messageDiv);
+        scrollToBottom();
+      }
+      
+      // 自動滾動到底部
+      function scrollToBottom() {
+        messageArea.scrollTop = messageArea.scrollHeight;
+      }
+      
+      // 清除所有勾選框
+      function clearCheckboxes() {
+        const checkboxes = document.querySelectorAll(".feedback-checkbox");
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = false;
+        });
+      }
+      
+      // 設置勾選框事件處理
+      function setupCheckboxes() {
+        const checkboxes = document.querySelectorAll(".feedback-checkbox");
+        
+        checkboxes.forEach(checkbox => {
+          checkbox.addEventListener("change", () => {
+            const selectedOptions = Array.from(checkboxes)
+              .filter(cb => cb.checked)
+              .map(cb => cb.value);
+            
+            userInput.value = selectedOptions.join(", ");
+          });
+        });
+      }
+      
+      // 事件監聽器
+      sendButton.addEventListener("click", sendMessage);
+      
+      userInput.addEventListener("keypress", event => {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
+      
+      // 處理視窗調整大小事件
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) {
+          feedbackContent.style.display = "block";
+        } else {
+          feedbackContent.style.display = "none";
+          toggleAllIcon.textContent = "+";
+        }
+      });
     </script>
   </body>
 </html>

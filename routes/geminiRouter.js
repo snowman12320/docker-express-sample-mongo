@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY is not set in environment variables");
-}
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// if (!process.env.GEMINI_API_KEY) {
+//   throw new Error("GEMINI_API_KEY is not set in environment variables");
+// }
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 router.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
