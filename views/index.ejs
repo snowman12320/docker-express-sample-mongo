@@ -1,11 +1,34 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title id="page-title"></title>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <a href="https://cxygw2-3000.csb.app/gemini">gemini</a>
+    <h1 id="header"></h1>
+    <p id="welcome"></p>
+    <a id="link" href="#">gemini</a>
+
+    <script>
+      // 从 URL 参数获取 baseURL
+      const urlParams = new URLSearchParams(window.location.search);
+      const baseURL = urlParams.get("baseURL") || "https://s95lyx-3000.csb.app";
+      const title = "动态页面"; // 你可以从其他地方获取标题内容
+
+      // 设置标题
+      document.getElementById("page-title").textContent = title;
+      document.title = title;
+
+      // 设置 h1 和段落
+      document.getElementById("header").textContent = title;
+      document.getElementById("welcome").textContent = "Welcome to " + title;
+
+      // 设置链接
+      const link = document.getElementById("link");
+      link.href = baseURL + "/gemini";
+      link.textContent = "gemini";
+
+      // 可在此加入其他逻辑，使用动态的 baseURL
+      console.log("使用的 baseURL:", baseURL);
+    </script>
   </body>
 </html>

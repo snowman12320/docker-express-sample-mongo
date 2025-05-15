@@ -70,7 +70,9 @@ router.post("/chat", async (req, res) => {
     });
 
     const translationPrompt =
-      "Translate the following Chinese text to English, providing only the English translation: ";
+      // "Translate the following Chinese text to English. Provide varied English expressions for repeated inputs while keeping the meaning accurate. Return only the English translation: ";
+      "Translate the following Chinese text to English. For repeated inputs, provide only one translation each time, using a different natural English expression that accurately conveys the meaning. Return only the English translation.";
+
     const result = await chat.sendMessage(translationPrompt + message);
     const response = await result.response;
     const text = response.text();
