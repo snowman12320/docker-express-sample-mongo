@@ -11,6 +11,7 @@ const pdfRouter = require('./routes/pdfRouter');
 const patientRouter = require('./routes/PatientRouter');
 const doctorRouter = require('./routes/DoctorRouter');
 const ctRouter = require('./routes/ctRouter');
+const geminiRouter = require('./routes/geminiRouter');
 
 const app = express();
 app.use(cors());
@@ -30,6 +31,7 @@ app.use('/pdf', pdfRouter);
 app.use('/patients', patientRouter);
 app.use('/doctors', doctorRouter);
 app.use('/ct', ctRouter);
+app.use('/gemini', geminiRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));

@@ -5,6 +5,10 @@ const path = require('path');
 const multer = require('multer');
 const prisma = require('../services/mySql');
 
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY is not set in environment variables");
+}
+
 router.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   const origin = '*';
