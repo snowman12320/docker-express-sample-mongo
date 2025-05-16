@@ -2,148 +2,324 @@
 <html>
   <head>
     <title><%= title %></title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
         overflow-y: hidden;
       }
-      
+
       .accordion-content {
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s ease-out;
       }
-      
-      .accordion-open {
+
+      .accordion-content.active {
         max-height: 1000px;
+      }
+
+      /* 確保手風琴內容預設收合 */
+      .accordion-content {
+        padding: 0;
+        border-top: 0;
+      }
+
+      .accordion-content.active {
+        padding: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      /* 聊天室樣式 */
+      .user-message {
+        background-color: #dbeafe;
+        margin-left: auto;
+        text-align: right;
+        border-radius: 0.5rem;
+      }
+
+      .gemini-message {
+        background-color: #dcfce7;
+        margin-right: auto;
+        border-radius: 0.5rem;
+        position: relative;
+      }
+
+      .copy-button {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        padding: 2px 6px;
+        background-color: rgba(229, 231, 235, 0.8);
+        border-radius: 4px;
+        font-size: 0.7rem;
       }
     </style>
   </head>
   <body class="font-sans bg-gray-100 text-gray-700 h-screen flex flex-col">
-    <div class="container mx-auto flex flex-col md:flex-row gap-5 p-5 h-full">
+    <div
+      id="app"
+      class="container mx-auto flex flex-col md:flex-row gap-5 p-5 h-full"
+    >
       <!-- 回饋選項面板 (左側) -->
-      <div class="feedback-options md:w-1/3 bg-white rounded-lg shadow md:h-full overflow-hidden flex flex-col">
+      <div
+        class="feedback-options md:w-1/3 bg-white rounded-lg shadow md:h-full overflow-hidden flex flex-col"
+      >
         <!-- 回饋選項標題 -->
         <div class="bg-blue-600 text-white p-3">
           <div class="flex justify-between items-center">
             <p class="font-bold text-lg">回饋選項</p>
-            <button id="toggleAllFeedback" class="md:hidden px-2 py-1 bg-white text-blue-600 rounded-md text-sm">
-              <span id="toggleAllIcon">+</span>
+            <button
+              @click="toggleFeedbackContent"
+              class="md:hidden px-2 py-1 bg-white text-blue-600 rounded-md text-sm"
+            >
+              <span>{{ feedbackContentVisible ? '-' : '+' }}</span>
             </button>
           </div>
         </div>
-        
+
         <!-- 回饋選項內容 (可捲動) -->
-        <div id="feedbackContent" class="overflow-y-auto flex-grow p-4">
+        <div
+          id="feedbackContent"
+          class="overflow-y-auto flex-grow p-4"
+          v-show="feedbackContentVisible"
+        >
           <!-- 表達方面手風琴 -->
           <div class="accordion mb-3 border border-gray-200 rounded-lg">
-            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+            <div
+              @click="toggleAccordion('expression')"
+              class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer w-full text-left"
+            >
               <span class="font-semibold">表達方面</span>
-              <span class="accordion-icon">+</span>
+              <span class="accordion-icon">{{
+                openAccordions.expression ? '-' : '+'
+              }}</span>
             </div>
-            <div class="accordion-content p-3">
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達很自然流暢" /> 表達很自然流暢</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達停頓點自然" /> 表達停頓點自然</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="聲音音調正常" /> 聲音音調正常</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="語句連貫性佳" /> 語句連貫性佳</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="表達不太自然像機器人" /> 表達不太自然像機器人</label>
+            <div
+              class="accordion-content"
+              :class="{ active: openAccordions.expression }"
+            >
+              <label
+                class="block py-1"
+                v-for="option in feedbackOptions.expression"
+                :key="option"
+              >
+                <input
+                  type="checkbox"
+                  class="feedback-checkbox mr-2"
+                  :value="option"
+                  v-model="selectedFeedback"
+                  @change="updateFeedback"
+                />
+                {{ option }}
+              </label>
             </div>
           </div>
-          
+
           <!-- 態度方面手風琴 -->
           <div class="accordion mb-3 border border-gray-200 rounded-lg">
-            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+            <div
+              @click="toggleAccordion('attitude')"
+              class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer w-full text-left"
+            >
               <span class="font-semibold">態度方面</span>
-              <span class="accordion-icon">+</span>
+              <span class="accordion-icon">{{
+                openAccordions.attitude ? '-' : '+'
+              }}</span>
             </div>
-            <div class="accordion-content p-3">
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度很適合該語句" /> 態度很適合該語句</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="情感表達豐富" /> 情感表達豐富</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="語氣自然" /> 語氣自然</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度平淡" /> 態度平淡</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="態度高亢過頭" /> 態度高亢過頭</label>
+            <div
+              class="accordion-content"
+              :class="{ active: openAccordions.attitude }"
+            >
+              <label
+                class="block py-1"
+                v-for="option in feedbackOptions.attitude"
+                :key="option"
+              >
+                <input
+                  type="checkbox"
+                  class="feedback-checkbox mr-2"
+                  :value="option"
+                  v-model="selectedFeedback"
+                  @change="updateFeedback"
+                />
+                {{ option }}
+              </label>
             </div>
           </div>
-          
+
           <!-- 音訊音質手風琴 -->
           <div class="accordion mb-3 border border-gray-200 rounded-lg">
-            <div class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer">
+            <div
+              @click="toggleAccordion('audioQuality')"
+              class="accordion-header bg-gray-100 p-3 flex justify-between items-center cursor-pointer w-full text-left"
+            >
               <span class="font-semibold">音訊音質</span>
-              <span class="accordion-icon">+</span>
+              <span class="accordion-icon">{{
+                openAccordions.audioQuality ? '-' : '+'
+              }}</span>
             </div>
-            <div class="accordion-content p-3">
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="音質非常清晰" /> 音質非常清晰</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="清楚不會有噪音" /> 清楚不會有噪音</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="音量適中" /> 音量適中</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="有一點噪音" /> 有一點噪音</label>
-              <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="噪音很明顯" /> 噪音很明顯</label>
+            <div
+              class="accordion-content"
+              :class="{ active: openAccordions.audioQuality }"
+            >
+              <label
+                class="block py-1"
+                v-for="option in feedbackOptions.audioQuality"
+                :key="option"
+              >
+                <input
+                  type="checkbox"
+                  class="feedback-checkbox mr-2"
+                  :value="option"
+                  v-model="selectedFeedback"
+                  @change="updateFeedback"
+                />
+                {{ option }}
+              </label>
             </div>
           </div>
-          
+
           <!-- 相關性評級手風琴 -->
           <div class="accordion border border-gray-200 rounded-lg">
-            <div class="accordion-header bg-blue-600 text-white p-3 flex justify-between items-center cursor-pointer">
+            <div
+              @click="toggleAccordion('relevance')"
+              class="accordion-header bg-blue-600 text-white p-3 flex justify-between items-center cursor-pointer w-full text-left"
+            >
               <span class="font-semibold">相關性評級</span>
-              <span class="accordion-icon">+</span>
+              <span class="accordion-icon">{{
+                openAccordions.relevance ? '-' : '+'
+              }}</span>
             </div>
-            <div class="accordion-content p-3">
+            <div
+              class="accordion-content"
+              :class="{ active: openAccordions.relevance }"
+            >
               <!-- 優秀子手風琴 -->
               <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
-                <div class="sub-accordion-header bg-green-100 p-2 flex justify-between items-center cursor-pointer">
+                <div
+                  @click="toggleAccordion('relevanceExcellent')"
+                  class="sub-accordion-header bg-green-100 p-2 flex justify-between items-center cursor-pointer w-full text-left"
+                >
                   <span class="font-medium">優秀 (Excellent)</span>
-                  <span class="sub-accordion-icon">+</span>
+                  <span class="sub-accordion-icon">{{
+                    openAccordions.relevanceExcellent ? '-' : '+'
+                  }}</span>
                 </div>
-                <div class="sub-accordion-content p-2 pl-4">
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有強烈的關聯" /> 與使用者查詢有強烈的關聯</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="最有可能引起使用者興趣" /> 最有可能引起使用者興趣</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="功能匹配最明顯的興趣/需求" /> 功能匹配最明顯的興趣/需求</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="精確名稱匹配" /> 精確名稱匹配</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="直接競爭對手" /> 直接競爭對手</label>
+                <div
+                  class="accordion-content"
+                  :class="{ active: openAccordions.relevanceExcellent }"
+                >
+                  <label
+                    class="block py-1"
+                    v-for="option in feedbackOptions.relevanceExcellent"
+                    :key="option"
+                  >
+                    <input
+                      type="checkbox"
+                      class="feedback-checkbox mr-2"
+                      :value="option"
+                      v-model="selectedFeedback"
+                      @change="updateFeedback"
+                    />
+                    {{ option }}
+                  </label>
                 </div>
               </div>
-              
+
               <!-- 良好子手風琴 -->
               <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
-                <div class="sub-accordion-header bg-blue-100 p-2 flex justify-between items-center cursor-pointer">
+                <div
+                  @click="toggleAccordion('relevanceGood')"
+                  class="sub-accordion-header bg-blue-100 p-2 flex justify-between items-center cursor-pointer w-full text-left"
+                >
                   <span class="font-medium">良好 (Good)</span>
-                  <span class="sub-accordion-icon">+</span>
+                  <span class="sub-accordion-icon">{{
+                    openAccordions.relevanceGood ? '-' : '+'
+                  }}</span>
                 </div>
-                <div class="sub-accordion-content p-2 pl-4">
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有關聯" /> 與使用者查詢有關聯</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="很可能引起使用者興趣" /> 很可能引起使用者興趣</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="連結較弱但具邏輯性且可能引起興趣" /> 連結較弱但具邏輯性且可能引起興趣</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="附屬應用程式" /> 附屬應用程式</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="可能有其他應用程式更具吸引力" /> 可能有其他應用程式更具吸引力</label>
+                <div
+                  class="accordion-content"
+                  :class="{ active: openAccordions.relevanceGood }"
+                >
+                  <label
+                    class="block py-1"
+                    v-for="option in feedbackOptions.relevanceGood"
+                    :key="option"
+                  >
+                    <input
+                      type="checkbox"
+                      class="feedback-checkbox mr-2"
+                      :value="option"
+                      v-model="selectedFeedback"
+                      @change="updateFeedback"
+                    />
+                    {{ option }}
+                  </label>
                 </div>
               </div>
-              
+
               <!-- 可接受子手風琴 -->
               <div class="sub-accordion mb-2 border border-gray-200 rounded-lg">
-                <div class="sub-accordion-header bg-yellow-100 p-2 flex justify-between items-center cursor-pointer">
+                <div
+                  @click="toggleAccordion('relevanceAcceptable')"
+                  class="sub-accordion-header bg-yellow-100 p-2 flex justify-between items-center cursor-pointer w-full text-left"
+                >
                   <span class="font-medium">可接受 (Acceptable)</span>
-                  <span class="sub-accordion-icon">+</span>
+                  <span class="sub-accordion-icon">{{
+                    openAccordions.relevanceAcceptable ? '-' : '+'
+                  }}</span>
                 </div>
-                <div class="sub-accordion-content p-2 pl-4">
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者查詢有輕微關聯" /> 與使用者查詢有輕微關聯</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="使用者看到廣告不會感到驚訝" /> 使用者看到廣告不會感到驚訝</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="相關性處於邊緣" /> 相關性處於邊緣</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="連結微弱" /> 連結微弱</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="不太可能引起使用者興趣" /> 不太可能引起使用者興趣</label>
+                <div
+                  class="accordion-content"
+                  :class="{ active: openAccordions.relevanceAcceptable }"
+                >
+                  <label
+                    class="block py-1"
+                    v-for="option in feedbackOptions.relevanceAcceptable"
+                    :key="option"
+                  >
+                    <input
+                      type="checkbox"
+                      class="feedback-checkbox mr-2"
+                      :value="option"
+                      v-model="selectedFeedback"
+                      @change="updateFeedback"
+                    />
+                    {{ option }}
+                  </label>
                 </div>
               </div>
-              
+
               <!-- 差子手風琴 -->
               <div class="sub-accordion border border-gray-200 rounded-lg">
-                <div class="sub-accordion-header bg-red-100 p-2 flex justify-between items-center cursor-pointer">
+                <div
+                  @click="toggleAccordion('relevanceBad')"
+                  class="sub-accordion-header bg-red-100 p-2 flex justify-between items-center cursor-pointer w-full text-left"
+                >
                   <span class="font-medium">差 (Bad)</span>
-                  <span class="sub-accordion-icon">+</span>
+                  <span class="sub-accordion-icon">{{
+                    openAccordions.relevanceBad ? '-' : '+'
+                  }}</span>
                 </div>
-                <div class="sub-accordion-content p-2 pl-4">
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="與使用者意圖無任何關聯" /> 與使用者意圖無任何關聯</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="讓使用者驚訝或讓體驗變差" /> 讓使用者驚訝或讓體驗變差</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="無可感知連結" /> 無可感知連結</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="技術上關聯但不合邏輯" /> 技術上關聯但不合邏輯</label>
-                  <label class="block py-1"><input type="checkbox" class="feedback-checkbox mr-2" value="冒犯性結果" /> 冒犯性結果</label>
+                <div
+                  class="accordion-content"
+                  :class="{ active: openAccordions.relevanceBad }"
+                >
+                  <label
+                    class="block py-1"
+                    v-for="option in feedbackOptions.relevanceBad"
+                    :key="option"
+                  >
+                    <input
+                      type="checkbox"
+                      class="feedback-checkbox mr-2"
+                      :value="option"
+                      v-model="selectedFeedback"
+                      @change="updateFeedback"
+                    />
+                    {{ option }}
+                  </label>
                 </div>
               </div>
             </div>
@@ -152,24 +328,52 @@
       </div>
 
       <!-- 聊天室 (右側) -->
-      <div id="chatbox" class="w-full md:w-2/3 bg-white rounded-lg shadow flex flex-col h-full">
-        <h1 class="text-xl font-bold text-blue-700 p-4 border-b border-gray-200"><%= title %></h1>
-        <div class="message-area flex-grow overflow-y-auto p-4" id="messageArea">
-          <!-- 聊天訊息將顯示在這裡 -->
+      <div
+        id="chatbox"
+        class="w-full md:w-2/3 bg-white rounded-lg shadow flex flex-col h-full"
+      >
+        <h1
+          class="text-xl font-bold text-blue-700 p-4 border-b border-gray-200"
+        >
+          <%= title %>
+        </h1>
+        <div
+          class="message-area flex-grow overflow-y-auto p-4"
+          ref="messageArea"
+        >
+          <div
+            v-for="(message, index) in messages"
+            :key="index"
+            class="message mb-3 p-3 rounded-lg max-w-md break-words"
+            :class="message.className"
+          >
+            <div v-html="message.text"></div>
+            <button
+              v-if="message.className === 'gemini-message'"
+              @click="copyToClipboard(message, index)"
+              class="copy-button hover:bg-gray-300"
+            >
+              {{ message.copied ? '已複製' : '複製' }}
+            </button>
+          </div>
         </div>
         <div class="border-t border-gray-200 p-4">
-          <div id="loadingIndicator" class="text-center text-gray-500 mb-2" style="display: none">
+          <div
+            class="text-center text-gray-500 mb-2"
+            v-show="loading"
+          >
             處理中...
           </div>
           <div class="flex items-center gap-2">
             <input
               type="text"
-              id="userInput"
+              v-model="userInput"
+              @keypress.enter="sendMessage"
               placeholder="輸入您的訊息..."
               class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
             <button
-              id="sendButton"
+              @click="sendMessage"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             >
               傳送
@@ -180,214 +384,210 @@
     </div>
 
     <script>
-      // 通用函數 - 創建消息元素
-      function createMessageElement(text, className) {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add(
-          "message",
-          className,
-          "mb-3",
-          "p-3",
-          "rounded-lg",
-          "max-w-md",
-          "break-words"
-        );
+      const { createApp, ref, onMounted } = Vue;
 
-        if (className === "user-message") {
-          messageDiv.classList.add("bg-blue-100", "ml-auto");
-        } else if (className === "gemini-message") {
-          messageDiv.classList.add("bg-green-100", "mr-auto");
-        }
-
-        // 將換行符轉換為 <br>
-        messageDiv.innerHTML = text.replace(/\\n/g, "<br>");
-        
-        return messageDiv;
-      }
-      
-      // 通用函數 - 加入複製按鈕
-      function addCopyButton(messageDiv, text) {
-        const copyButton = document.createElement("button");
-        copyButton.classList.add(
-          "copy-button",
-          "ml-2",
-          "mt-2",
-          "px-2",
-          "py-1",
-          "bg-gray-200",
-          "text-gray-700",
-          "rounded-md",
-          "text-xs",
-          "hover:bg-gray-300"
-        );
-        copyButton.textContent = "複製";
-        copyButton.onclick = () => {
-          navigator.clipboard
-            .writeText(text.replace(/\\n/g, "\n"))
-            .then(() => {
-              copyButton.textContent = "已複製!";
-              setTimeout(() => {
-                copyButton.textContent = "複製";
-              }, 2000);
-            })
-            .catch((err) => {
-              console.error("複製失敗:", err);
-            });
-        };
-        messageDiv.appendChild(copyButton);
-      }
-      
-      // 通用函數 - 處理手風琴開關
-      function setupAccordions(accordionSelector, contentSelector, iconSelector) {
-        const accordions = document.querySelectorAll(accordionSelector);
-        
-        accordions.forEach(header => {
-          header.addEventListener('click', () => {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector(iconSelector);
-            
-            // 切換內容顯示狀態
-            content.classList.toggle('accordion-open');
-            
-            // 更新圖標
-            icon.textContent = content.classList.contains('accordion-open') ? '-' : '+';
-          });
-        });
-      }
-      
-      // DOM 元素
-      const messageArea = document.getElementById("messageArea");
-      const userInput = document.getElementById("userInput");
-      const loadingIndicator = document.getElementById("loadingIndicator");
-      const feedbackContent = document.getElementById("feedbackContent");
-      const toggleAllFeedback = document.getElementById("toggleAllFeedback");
-      const toggleAllIcon = document.getElementById("toggleAllIcon");
-      const sendButton = document.getElementById("sendButton");
-      
-      // 初始化頁面
-      document.addEventListener("DOMContentLoaded", () => {
-        // 處理主手風琴
-        setupAccordions('.accordion-header', '.accordion-content', '.accordion-icon');
-        
-        // 處理子手風琴
-        setupAccordions('.sub-accordion-header', '.sub-accordion-content', '.sub-accordion-icon');
-        
-        // 移動設備優化
-        if (window.innerWidth < 768) {
-          feedbackContent.style.display = "none";
-          toggleAllIcon.textContent = "+";
-        }
-        
-        // 全部收合/展開按鈕
-        toggleAllFeedback.addEventListener("click", () => {
-          const isHidden = feedbackContent.style.display === "none";
-          feedbackContent.style.display = isHidden ? "block" : "none";
-          toggleAllIcon.textContent = isHidden ? "-" : "+";
-        });
-        
-        // 處理勾選框事件
-        setupCheckboxes();
-      });
-      
-      // 發送消息函數
-      async function sendMessage() {
-        const message = userInput.value.trim();
-        if (!message) return;
-
-        appendMessage(message, "user-message");
-        userInput.value = "";
-        loadingIndicator.style.display = "block";
-
-        // 清除勾選框
-        clearCheckboxes();
-
-        try {
-          const response = await fetch("/gemini/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message: message }),
+      createApp({
+        setup() {
+          const messageArea = ref(null);
+          const userInput = ref('');
+          const loading = ref(false);
+          const feedbackContentVisible = ref(true);
+          const messages = ref([]);
+          const openAccordions = ref({
+            expression: false,
+            attitude: false,
+            audioQuality: false,
+            relevance: false,
+            relevanceExcellent: false,
+            relevanceGood: false,
+            relevanceAcceptable: false,
+            relevanceBad: false,
           });
 
-          loadingIndicator.style.display = "none";
+          const feedbackOptions = ref({
+            expression: [
+              '表達很自然流暢',
+              '表達停頓點自然',
+              '聲音音調正常',
+              '語句連貫性佳',
+              '表達不太自然像機器人',
+            ],
+            attitude: [
+              '態度很適合該語句',
+              '情感表達豐富',
+              '語氣自然',
+              '態度平淡',
+              '態度高亢過頭',
+            ],
+            audioQuality: [
+              '音質非常清晰',
+              '清楚不會有噪音',
+              '音量適中',
+              '有一點噪音',
+              '噪音很明顯',
+            ],
+            relevanceExcellent: [
+              '與使用者查詢有強烈的關聯',
+              '最有可能引起使用者興趣',
+              '功能匹配最明顯的興趣/需求',
+              '精確名稱匹配',
+              '直接競爭對手',
+            ],
+            relevanceGood: [
+              '與使用者查詢有關聯',
+              '很可能引起使用者興趣',
+              '連結較弱但具邏輯性且可能引起興趣',
+              '附屬應用程式',
+              '可能有其他應用程式更具吸引力',
+            ],
+            relevanceAcceptable: [
+              '與使用者查詢有輕微關聯',
+              '使用者看到廣告不會感到驚訝',
+              '相關性處於邊緣',
+              '連結微弱',
+              '不太可能引起使用者興趣',
+            ],
+            relevanceBad: [
+              '與使用者意圖無任何關聯',
+              '讓使用者驚訝或讓體驗變差',
+              '無可感知連結',
+              '技術上關聯但不合邏輯',
+              '冒犯性結果',
+            ],
+          });
+          const selectedFeedback = ref([]);
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            appendMessage(
-              `錯誤: ${errorData.error || response.statusText}`,
-              "gemini-message"
-            );
-            return;
+          onMounted(() => {
+            if (window.innerWidth < 768) {
+              feedbackContentVisible.value = false;
+            }
+            window.addEventListener('resize', handleResize);
+          });
+
+          function handleResize() {
+            if (window.innerWidth >= 768) {
+              feedbackContentVisible.value = true;
+            } else {
+              feedbackContentVisible.value = false;
+            }
           }
 
-          const data = await response.json();
-          appendMessage(data.response, "gemini-message");
-        } catch (error) {
-          loadingIndicator.style.display = "none";
-          appendMessage(`請求失敗: ${error.message}`, "gemini-message");
-          console.error("傳送訊息錯誤:", error);
-        }
-      }
+          function toggleFeedbackContent() {
+            feedbackContentVisible.value = !feedbackContentVisible.value;
+          }
 
-      // 加入消息到聊天區域
-      function appendMessage(text, className) {
-        const messageDiv = createMessageElement(text, className);
-        
-        if (className === "gemini-message") {
-          addCopyButton(messageDiv, text);
-        }
+          function toggleAccordion(key) {
+            openAccordions.value[key] = !openAccordions.value[key];
+            if (key === 'relevance' && openAccordions.value.relevance) {
+              // 當打開相關性評級時，預設打開優秀選項
+              openAccordions.value.relevanceExcellent = true;
+            }
+          }
 
-        messageArea.appendChild(messageDiv);
-        scrollToBottom();
-      }
-      
-      // 自動滾動到底部
-      function scrollToBottom() {
-        messageArea.scrollTop = messageArea.scrollHeight;
-      }
-      
-      // 清除所有勾選框
-      function clearCheckboxes() {
-        const checkboxes = document.querySelectorAll(".feedback-checkbox");
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = false;
-        });
-      }
-      
-      // 設置勾選框事件處理
-      function setupCheckboxes() {
-        const checkboxes = document.querySelectorAll(".feedback-checkbox");
-        
-        checkboxes.forEach(checkbox => {
-          checkbox.addEventListener("change", () => {
-            const selectedOptions = Array.from(checkboxes)
-              .filter(cb => cb.checked)
-              .map(cb => cb.value);
-            
-            userInput.value = selectedOptions.join(", ");
-          });
-        });
-      }
-      
-      // 事件監聽器
-      sendButton.addEventListener("click", sendMessage);
-      
-      userInput.addEventListener("keypress", event => {
-        if (event.key === "Enter") {
-          sendMessage();
-        }
-      });
-      
-      // 處理視窗調整大小事件
-      window.addEventListener("resize", () => {
-        if (window.innerWidth >= 768) {
-          feedbackContent.style.display = "block";
-        } else {
-          feedbackContent.style.display = "none";
-          toggleAllIcon.textContent = "+";
-        }
-      });
+          function createMessageElement(text, className) {
+            return {
+              text: text.replace(/\\n/g, '<br>'),
+              className,
+              copied: false,
+            };
+          }
+
+          function scrollToBottom() {
+            if (messageArea.value) {
+              messageArea.value.scrollTop = messageArea.value.scrollHeight;
+            }
+          }
+
+          async function sendMessage() {
+            if (!userInput.value.trim()) return;
+
+            messages.value.push(
+              createMessageElement(userInput.value, 'user-message'),
+            );
+            const messageText = userInput.value;
+            userInput.value = '';
+            loading.value = true;
+
+            selectedFeedback.value = [];
+
+            try {
+              const response = await fetch('/gemini/chat', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: messageText }),
+              });
+
+              loading.value = false;
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                messages.value.push(
+                  createMessageElement(
+                    `錯誤: ${errorData.error || response.statusText}`,
+                    'gemini-message',
+                  ),
+                );
+                scrollToBottom();
+                return;
+              }
+
+              const data = await response.json();
+              messages.value.push(
+                createMessageElement(data.response, 'gemini-message'),
+              );
+              scrollToBottom();
+            } catch (error) {
+              loading.value = false;
+              messages.value.push(
+                createMessageElement(
+                  `請求失敗: ${error.message}`,
+                  'gemini-message',
+                ),
+              );
+              scrollToBottom();
+              console.error('傳送訊息錯誤:', error);
+            }
+          }
+
+          function copyToClipboard(message, index) {
+            navigator.clipboard
+              .writeText(
+                message.text.replace(/<br>/g, '\n').replace(/<[^>]*>/g, ''),
+              )
+              .then(() => {
+                messages.value[index].copied = true;
+                setTimeout(() => {
+                  messages.value[index].copied = false;
+                }, 2000);
+              })
+              .catch(err => {
+                console.error('複製失敗:', err);
+              });
+          }
+
+          function updateFeedback() {
+            userInput.value = selectedFeedback.value.join(', ');
+          }
+
+          return {
+            userInput,
+            sendMessage,
+            messages,
+            loading,
+            feedbackContentVisible,
+            toggleFeedbackContent,
+            feedbackOptions,
+            selectedFeedback,
+            updateFeedback,
+            copyToClipboard,
+            messageArea,
+            openAccordions,
+            toggleAccordion,
+          };
+        },
+      }).mount('#app');
     </script>
   </body>
 </html>

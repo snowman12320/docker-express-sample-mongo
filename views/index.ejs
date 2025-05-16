@@ -10,9 +10,8 @@
 
     <script>
       // 从 URL 参数获取 baseURL
-      const urlParams = new URLSearchParams(window.location.search);
-      const baseURL = urlParams.get("baseURL") || "https://s95lyx-3000.csb.app";
-      const title = "动态页面"; // 你可以从其他地方获取标题内容
+      const baseURL = new URLSearchParams(window.location.search);
+      const title = "首頁";
 
       // 设置标题
       document.getElementById("page-title").textContent = title;
@@ -26,9 +25,6 @@
       const link = document.getElementById("link");
       link.href = baseURL + "/gemini";
       link.textContent = "gemini";
-
-      // 可在此加入其他逻辑，使用动态的 baseURL
-      console.log("使用的 baseURL:", baseURL);
     </script>
   </body>
 </html>
