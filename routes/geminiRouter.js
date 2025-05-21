@@ -37,15 +37,6 @@ router.post('/chat', async (req, res) => {
       model: 'gemini-1.5-flash-latest',
     });
 
-    (async () => {
-      try {
-        await model.getGenerativeModelInfo();
-        console.log('Successfully connected to Gemini AI');
-      } catch (error) {
-        console.error('Failed to initialize Gemini AI:', error.message);
-      }
-    })();
-
     const chat = model.startChat({
       generationConfig: {
         maxOutputTokens: 8192,
