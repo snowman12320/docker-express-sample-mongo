@@ -6,11 +6,11 @@ const logger = require("morgan");
 const cors = require("cors");
 
 const indexRouter = require('./routes/index');
-// const sleepDataRouter = require('./routes/sleepDataRouter');
-// const pdfRouter = require('./routes/pdfRouter');
-// const patientRouter = require('./routes/PatientRouter');
-// const doctorRouter = require('./routes/DoctorRouter');
-// const ctRouter = require('./routes/ctRouter');
+const sleepDataRouter = require('./routes/sleepDataRouter');
+const pdfRouter = require('./routes/pdfRouter');
+const patientRouter = require('./routes/PatientRouter');
+const doctorRouter = require('./routes/DoctorRouter');
+const ctRouter = require('./routes/ctRouter');
 const geminiRouter = require("./routes/geminiRouter");
 
 const app = express();
