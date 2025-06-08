@@ -8,7 +8,8 @@
     "studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate && npx prisma db push",
     "prisma:migrate": "npx prisma migrate dev --name add-usercode-column --skip-generate-shadow",
-    "prisma:generate--force-reset": "npx prisma generate && npx prisma db push"
+    "prisma:generate--force-reset": "npx prisma generate && npx prisma db push",
+    "test:postgres": "node testPostgres.js"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
@@ -25,6 +26,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
     "pdf2json": "^3.1.5",
+    "postgres": "^3.4.7",
     "prisma": "^6.5.0"
   },
   "devDependencies": {
